@@ -18,7 +18,7 @@ public class DbQuery {
     public Connection getConnection(){
         Connection con = null;
         try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost:8889/swing_demo", "root","root");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:8889/titodb", "root","root");
         } catch (SQLException ex) {
             Logger.getLogger(DbQuery.class.getName()).log(Level.SEVERE, null, ex);
         }

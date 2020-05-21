@@ -15,24 +15,23 @@ public class ItemDetail extends JFrame{
 
     JPanel imgPanel;
     DropShadowPanel imgMetaData;
-    JPanel pinkPanel;
+    JPanel topPanel;
     JPanel contentPanel;
-    JPanel gridPanel;
 
-    private JLabel labelShowLevel;
-    private JLabel textShowLevel;
+    JLabel labelShowLevel;
+    JLabel textShowLevel;
 
-    private JLabel labelAddEntity;
-    private JLabel textAddEntity;
+    JLabel labelAddEntity;
+    JLabel textAddEntity;
 
-    private JLabel labelRemoveEntity;
-    private JLabel textRemoveEntity;
+    JLabel labelRemoveEntity;
+    JLabel textRemoveEntity;
 
-    private JLabel labelSearchEntity;
-    private JFormattedTextField textSearchEntity;
-    private JButton buttonSearchEntity;
+    JLabel labelSearchEntity;
+    JFormattedTextField textSearchEntity;
+    JButton buttonSearchEntity;
 
-    private JLabel totalLevels;
+    JLabel totalLevels;
 
     public static void main (String [] args){
         EventQueue.invokeLater(ItemDetail::new);
@@ -83,9 +82,7 @@ public class ItemDetail extends JFrame{
             contentPanel.setLayout(new MigLayout());
             contentPanel.setBackground(Color.WHITE);
 
-
-
-            contentPanel.add(pinkPanel, "cell 0 0");
+            contentPanel.add(topPanel, "cell 0 0");
             //  insert invisible components to provide top space
             contentPanel.add(Box.createRigidArea(new Dimension(0, 80)));
             contentPanel.add(imgPanel, "cell 0 1");
@@ -98,8 +95,8 @@ public class ItemDetail extends JFrame{
 
     public void initTopPanel () {
         // Top Panel
-        pinkPanel = new JPanel(new MigLayout());
-        pinkPanel.setBackground(Color.WHITE);
+        topPanel = new JPanel(new MigLayout());
+        topPanel.setBackground(Color.WHITE);
 
 
 
@@ -124,7 +121,6 @@ public class ItemDetail extends JFrame{
         levelBar.setBorder(new EmptyBorder(5,0,0,450));
 
 
-
         // Availability Text
         JLabel availText = new JLabel();
         availText.setText("<html>Availability: <font color='blue'>In stock</font></html>");
@@ -138,10 +134,10 @@ public class ItemDetail extends JFrame{
         descText.setEditable(false);
 
 
-        pinkPanel.add(itemName,  "cell 0 0");
-        pinkPanel.add(levelBar, "cell 0 1");
-        pinkPanel.add(availText, "cell 0 2");
-        pinkPanel.add(descText, "cell 0 3");
+        topPanel.add(itemName,  "cell 0 0");
+        topPanel.add(levelBar, "cell 0 1");
+        topPanel.add(availText, "cell 0 2");
+        topPanel.add(descText, "cell 0 3");
 
 
     }
@@ -228,7 +224,7 @@ public class ItemDetail extends JFrame{
                 .addComponent(totalLevels));
 
         layout.setVerticalGroup(vGroup);
-//@formatter:on
+
 
         return panel;
     }

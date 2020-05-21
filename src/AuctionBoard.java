@@ -9,7 +9,9 @@ import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.border.EmptyBorder;
 
-/** Primary GUI window for the client application. */
+/**
+ * Primary GUI window for the client application.
+ */
 public class AuctionBoard extends JFrame {
     JPanel imgPanel;
     JPanel imgMetaData;
@@ -17,26 +19,23 @@ public class AuctionBoard extends JFrame {
     JPanel contentPanel;
     JScrollPane scroll;
     JPanel gridPanel;
-    MouseListener mouseListener;
 
-
-        public static void main(String[] args) {
-
-            SwingUtilities.invokeLater(()->{
-                AuctionBoard irc = new AuctionBoard();
-                irc.setVisible(true);
-            });
-        }
 
     public AuctionBoard() {
-        super("Image Repository Client");
+        super("Tito Auction Board");
         initLayout();
     }
 
+    public static void main(String[] args) {
 
+        SwingUtilities.invokeLater(() -> {
+            AuctionBoard irc = new AuctionBoard();
+            irc.setVisible(true);
+        });
+    }
 
     void initLayout() {
-        setSize (900, 700);
+        setSize(900, 700);
         // this method display the JFrame to center position of a screen
         setLocationRelativeTo(null);
         setResizable(false);
@@ -49,13 +48,13 @@ public class AuctionBoard extends JFrame {
 
         layout.setHorizontalGroup(layout.createParallelGroup(Alignment.CENTER).
                 addGroup(layout.createSequentialGroup().
-                        addComponent(imageMetaData(), 200 , 200 , 200).
+                        addComponent(imageMetaData(), 200, 200, 200).
                         addComponent(contentPanel())));
 
         layout.setVerticalGroup(layout.createSequentialGroup().
                 addGroup(layout.createParallelGroup(Alignment.CENTER)
                         .addComponent(imageMetaData()).
-                        addComponent(contentPanel())));
+                                addComponent(contentPanel())));
 
         add(p);
     }
@@ -72,7 +71,7 @@ public class AuctionBoard extends JFrame {
             contentPanel.setBackground(Color.WHITE);
 
             // Make ContentPanel Scrollable
-            scroll = new JScrollPane(contentPanel,   ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            scroll = new JScrollPane(contentPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
             scroll.setPreferredSize(new Dimension(600, 600));
 
 
@@ -98,7 +97,7 @@ public class AuctionBoard extends JFrame {
         return scroll;
     }
 
-    public void initTopPanel () {
+    public void initTopPanel() {
         // Top Panel
         pinkPanel = new DropShadowPanel(4);
         pinkPanel.setBackground(Color.PINK);
@@ -108,7 +107,7 @@ public class AuctionBoard extends JFrame {
         String path = "/resources/topimg.png";
         ImageIcon icon = new ImageIcon(AuctionBoard.class.getResource(path));
         Image image = icon.getImage(); // transform it
-        Image newImg = image.getScaledInstance(670, 137,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+        Image newImg = image.getScaledInstance(670, 137, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
         icon = new ImageIcon(newImg);  // transform it back
         JLabel imgLabel = new JLabel(icon);
         //imgLabel.setBorder(new EmptyBorder(50,0,0,0));//top,left,bottom,right
@@ -117,10 +116,9 @@ public class AuctionBoard extends JFrame {
         pinkPanel.add(imgLabel);
 
 
-
     }
 
-    public void initGridPanel () {
+    public void initGridPanel() {
 
         // 4x4 GridLayout Panel
         imgPanel = new JPanel();
@@ -135,16 +133,16 @@ public class AuctionBoard extends JFrame {
         DbQuery mq = new DbQuery();
         ArrayList<AuctionItem> list = mq.BindTable();
 
-        gridPanel = new JPanel(new GridLayout(4,4, 10, 10));
-        gridPanel.setPreferredSize(new Dimension(600,600));
+        gridPanel = new JPanel(new GridLayout(4, 4, 10, 10));
+        gridPanel.setPreferredSize(new Dimension(600, 600));
         gridPanel.setBackground(Color.WHITE);
 
         for (int i = 0; i < list.size(); i++) {
 
-            if(list.get(i).getMyImage() != null || list.get(i).getImgName() != null){
+            if (list.get(i).getMyImage() != null || list.get(i).getImgName() != null) {
 
                 ImageIcon image = new ImageIcon(new ImageIcon(list.get(i).getMyImage()).getImage()
-                        .getScaledInstance(130, 100, Image.SCALE_SMOOTH) );
+                        .getScaledInstance(130, 100, Image.SCALE_SMOOTH));
 
                 String imgName = list.get(i).getImgName();
                 itemCard(image, imgName);
@@ -153,7 +151,6 @@ public class AuctionBoard extends JFrame {
 
 
         }
-
 
 
         container.add(gridPanel);
@@ -184,75 +181,73 @@ public class AuctionBoard extends JFrame {
         cardPanel.add(textLabel, BorderLayout.PAGE_END);
 
 
-
         gridPanel.add(cardPanel);
 
 
         return cardPanel;
     }
 
-
-        JPanel imageMetaData() {
-            if (imgMetaData == null) {
-                imgMetaData = new JPanel();
-                imgMetaData.setLayout(new GridLayout(2, 1));
-                imgMetaData.setPreferredSize(new Dimension(60, 520));
-                imgMetaData.setBackground(new Color(51, 65, 130));
-
-
-                initUserProfile(imgMetaData);
-                initLogoutBtn(imgMetaData);
-
-            }
-
-            return imgMetaData;
-        }
-
-        public void initUserProfile(JPanel container) {
-
-            JPanel userView = new JPanel();
-            userView.setBackground(new Color(51, 65, 130));
-            // Image View
-            String path = "/resources/userprof.png";
-            ImageIcon icon = new ImageIcon(AuctionBoard.class.getResource(path));
-            Image image = icon.getImage(); // transform it
-            Image newImg = image.getScaledInstance(120, 100, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
-            icon = new ImageIcon(newImg);  // transform it back
-            JLabel imgLabel = new JLabel(icon);
-            imgLabel.setBorder(new EmptyBorder(50, 0, 0, 0));//top,left,bottom,right
-
-            // add to UserView
-            userView.add(imgLabel);
+    JPanel imageMetaData() {
+        if (imgMetaData == null) {
+            imgMetaData = new JPanel();
+            imgMetaData.setLayout(new GridLayout(2, 1));
+            imgMetaData.setPreferredSize(new Dimension(60, 520));
+            imgMetaData.setBackground(new Color(51, 65, 130));
 
 
-            // Name Label
-            JLabel nameLabel = new JLabel();
-            nameLabel.setText("Kenny Dabiri");
-            nameLabel.setForeground(Color.white);
-            nameLabel.setBorder(new EmptyBorder(10, 0, 0, 0));
-            nameLabel.setFont(new Font("Arial", Font.BOLD, 15));
-
-            userView.add(nameLabel);
-
-
-            container.add(userView);
+            initUserProfile(imgMetaData);
+            initLogoutBtn(imgMetaData);
 
         }
 
-        public void initLogoutBtn(JPanel container) {
-            // Back button image
-            String btnPath = "/resources/ic_back_btn.png";
-            ImageIcon btnIcon = new ImageIcon(AuctionBoard.class.getResource(btnPath));
-            Image btnImg = btnIcon.getImage(); // transform it
-            Image newBtnImg = btnImg.getScaledInstance(70, 70, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
-            btnIcon = new ImageIcon(newBtnImg);  // transform it back
+        return imgMetaData;
+    }
 
-            // Back Button
-            JLabel backbtn = new JLabel(btnIcon);
+    public void initUserProfile(JPanel container) {
 
-            container.add(backbtn);
+        JPanel userView = new JPanel();
+        userView.setBackground(new Color(51, 65, 130));
+        // Image View
+        String path = "/resources/userprof.png";
+        ImageIcon icon = new ImageIcon(AuctionBoard.class.getResource(path));
+        Image image = icon.getImage(); // transform it
+        Image newImg = image.getScaledInstance(120, 100, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+        icon = new ImageIcon(newImg);  // transform it back
+        JLabel imgLabel = new JLabel(icon);
+        imgLabel.setBorder(new EmptyBorder(50, 0, 0, 0));//top,left,bottom,right
 
-        }
+        // add to UserView
+        userView.add(imgLabel);
+
+
+        // Name Label
+        JLabel nameLabel = new JLabel();
+        nameLabel.setText("Kenny Dabiri");
+        nameLabel.setForeground(Color.white);
+        nameLabel.setBorder(new EmptyBorder(10, 0, 0, 0));
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 15));
+
+        userView.add(nameLabel);
+
+
+        container.add(userView);
+
+    }
+
+    public void initLogoutBtn(JPanel container) {
+        // Back button image
+        String btnPath = "/resources/ic_back_btn.png";
+        ImageIcon btnIcon = new ImageIcon(AuctionBoard.class.getResource(btnPath));
+        Image btnImg = btnIcon.getImage(); // transform it
+        Image newBtnImg = btnImg.getScaledInstance(70, 70, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+        btnIcon = new ImageIcon(newBtnImg);  // transform it back
+
+        // Back Button
+        JLabel backbtn = new JLabel(btnIcon);
+
+        container.add(backbtn);
+
+    }
 
 
 }

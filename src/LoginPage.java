@@ -2,26 +2,24 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
-import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 
 /** Primary GUI window for the client application. */
 public class LoginPage extends JFrame implements ActionListener {
     
 
-    private JLabel titleLabel;
-    private JLabel emailLabel;
-    private JLabel pwdLabel;
-    private JPasswordField pwdField;
-    private JTextField emailTextField;
-    private JButton loginBtn;
-    private JPanel basePanel;
-    private JPanel loginPanel;
-    private JPanel loginDataPanel;
-    private JButton btnNewButton;
+    JLabel titleLabel;
+    JLabel emailLabel;
+    JLabel pwdLabel;
+    JPasswordField pwdField;
+    JTextField emailTextField;
+    JButton loginBtn;
+    JPanel basePanel;
+    JPanel loginPanel;
+    JPanel loginDataPanel;
+    JButton btnNewButton;
 
 
 
@@ -202,11 +200,11 @@ public class LoginPage extends JFrame implements ActionListener {
             String userName = emailTextField.getText();
             String password = pwdField.getText();
             try {
-                Connection connection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:8889/swing_demo",
+                Connection connection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:8889/titodb",
                         "root", "root");
 
-                PreparedStatement st = (PreparedStatement) connection
-                        .prepareStatement("Select name, password from student where name=? and password=?");
+                PreparedStatement st =  connection
+                        .prepareStatement("Select name, password from tbl_user where name=? and password=?");
 
                 st.setString(1, userName);
                 st.setString(2, password);

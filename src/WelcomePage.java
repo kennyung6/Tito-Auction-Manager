@@ -8,12 +8,7 @@ import javax.swing.border.EtchedBorder;
 
 public class WelcomePage extends JFrame{
 
-    private static final long serialVersionUID = 1L;
-
-
     JLabel imgLabel;
-
-
     Container container;
 
     // class constants
