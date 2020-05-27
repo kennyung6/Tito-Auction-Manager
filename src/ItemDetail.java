@@ -271,6 +271,8 @@ public class ItemDetail extends JFrame{
     }
 
     void updateUserMaxBid(int userBidNum) {
+        int i = 0;
+
         try {
             Connection connection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:8889/titodb",
                     "root", "root");
@@ -278,13 +280,8 @@ public class ItemDetail extends JFrame{
             PreparedStatement st =  connection
                     .prepareStatement("UPDATE tbl_user SET bid = ?, WHERE id = ?");
 
-            st.setString(4, String.valueOf(userBidNum));
-            ResultSet rs = st.executeQuery();
-            if (rs.next()) {
-                dispose();
-
-
-            }
+            st.setString(1, String.valueOf(userBidNum));
+            i  = st.executeUpdate();
 
 
         } catch (SQLException sqlException) {
@@ -303,7 +300,6 @@ public class ItemDetail extends JFrame{
         bidHistory.setText(String.valueOf(bidHis));
 
     }
-
 
     DropShadowPanel imageMetaData() {
         if (imgMetaData == null) {
