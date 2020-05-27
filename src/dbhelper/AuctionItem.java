@@ -1,45 +1,80 @@
 package dbhelper;
 
+import java.awt.*;
+import java.sql.Timestamp;
+
 public class AuctionItem {
 
     private int id;
-
-
-    private String imgName;
-    private int qte;
-    private String price;
-    private int catId;
+    private String name;
+    private Timestamp timeout;
+    private int lowBid;
+    private int bidHistory;
     private byte[] Image;
 
     public AuctionItem(){}
 
-    public AuctionItem(int Id, String name, byte[] image){
+    public AuctionItem(int Id, String name, Timestamp timeout, int lowBid, int bidHistory, byte[] image){
 
         this.id = Id;
-        this.imgName = name;
+        this.name = name;
+        this.timeout = timeout;
+        this.lowBid = lowBid;
+        this.bidHistory = bidHistory;
         this.Image = image;
 
     }
 
 
-    public int getID(){
+    public void setImage(byte[] image) {
+        Image = image;
+    }
+
+    public int getId(){
         return id;
     }
 
-    public void setID(int ID){
-        this.id = ID;
+    public void setId(int Id){
+        this.id = Id;
     }
 
-    public String getImgName() {
-        return imgName;
+    public String getName() {
+        return name;
     }
 
-    public void setImgName(String name) {
-        this.imgName = name;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Timestamp getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(Timestamp timeout) {
+        this.timeout = timeout;
+    }
+
+    public int getLowBid() {
+        return lowBid;
+    }
+
+    public void setLowBid(int lowBid) {
+        this.lowBid = lowBid;
+    }
+
+    public int getBidHistory() {
+        return bidHistory;
+    }
+
+    public void setBidHistory(int bidHistory) {
+        this.bidHistory = bidHistory;
     }
 
 
-    public byte[] getMyImage(){
+    public byte[] getImage(){
         return Image;
     }
+
+
+
 }

@@ -15,7 +15,7 @@ public class FancyProgressBar extends BasicProgressBarUI {
 
     @Override
     protected Dimension getPreferredInnerHorizontal() {
-        return new Dimension(146, 20);
+        return new Dimension(146, 17);
     }
 
 
@@ -29,16 +29,17 @@ public class FancyProgressBar extends BasicProgressBarUI {
         int iStrokWidth = 3;
         g2d.setStroke(new BasicStroke(iStrokWidth, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         g2d.setColor(new Color(11,17,58));
-        g2d.setBackground(new Color(11,17,58));
+        //g2d.setBackground(new Color(11,17,58));
 
         int width = progressBar.getWidth();
         int height = progressBar.getHeight();
 
-        RoundRectangle2D outline = new RoundRectangle2D.Double((iStrokWidth / 2), (iStrokWidth / 2),
+        // Progress Bar Outline
+      /*  RoundRectangle2D outline = new RoundRectangle2D.Double((iStrokWidth / 2), (iStrokWidth / 2),
                 width - iStrokWidth, height - iStrokWidth,
                 height, height);
 
-        g2d.draw(outline);
+        g2d.draw(outline);*/
 
         int iInnerHeight = height - (iStrokWidth * 4);
         int iInnerWidth = width - (iStrokWidth * 4);

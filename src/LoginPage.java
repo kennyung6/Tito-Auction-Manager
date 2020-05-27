@@ -1,10 +1,12 @@
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.sql.*;
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 /** Primary GUI window for the client application. */
 public class LoginPage extends JFrame implements ActionListener {
@@ -42,10 +44,11 @@ public class LoginPage extends JFrame implements ActionListener {
     }
 
     void initLayout() {
-        setSize (900, 700);
+        setSize (1000, 700);
         // this method display the JFrame to center position of a screen
         setLocationRelativeTo(null);
         setResizable(false);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
 
         // The overall Container
@@ -79,38 +82,53 @@ public class LoginPage extends JFrame implements ActionListener {
         loginBtn = new JButton();
 
 
-
-        emailTextField.setMargin(new Insets(30,30,30,30));
-        emailTextField.setFont(new Font("Segoe UI", Font.PLAIN, 30));
-        emailTextField.setForeground(new Color(11,17,58));
-        emailTextField.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0,
-                new java.awt.Color(10, 11, 38)));
-
+        // Add Bottom Border And Margin to TextFields
+        Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0,
+                new Color(10, 11, 38));
+        Border empty = new EmptyBorder(0, 10, 0, 0);
+        CompoundBorder border = new CompoundBorder(bottomLine, empty);
 
 
+
+        // Login Title
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 34));
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setText("Log In");
 
+
+        // Email Label
         emailLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         emailLabel.setForeground(Color.WHITE);
         emailLabel.setText("Email");
 
+
+        // Email TextField
+        emailTextField.setPreferredSize(new Dimension(35,40));
+        emailTextField.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        emailTextField.setForeground(new Color(11,17,58));
+        emailTextField.setBorder(border);
+
+
+        // Password Label
         pwdLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         pwdLabel.setForeground(Color.WHITE);
         pwdLabel.setText("Password");
 
-        pwdField.setFont(new Font("Segoe UI", Font.PLAIN, 30));
+
+        // Password TextField
+        pwdField.setPreferredSize(new Dimension(35,40));
+        pwdField.setFont(new Font("Segoe UI", Font.PLAIN, 20));
         pwdField.setForeground(new Color(11,17,58));
         pwdField.setText("pwdField");
-        pwdField.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0,
-                new java.awt.Color(10, 11, 38)));
+        pwdField.setBorder(border);
 
 
+        // Login Button
         loginBtn.setBackground(new Color(0, 204, 204));
         loginBtn.setText("LOGIN");
 
 
+        // Layout settings
         GroupLayout jPanel1Layout = new GroupLayout(loginPanel);
         loginPanel.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -178,8 +196,7 @@ public class LoginPage extends JFrame implements ActionListener {
             authorText.setText("(c) 2020 Titus Auction Manager - TAMAN");
             authorText.setForeground(new Color(11,17,58));
             authorText.setFont(new Font("Arial",Font.ITALIC,13));
-            authorText.setBorder(new EmptyBorder(0,120,60,0));
-
+            authorText.setBorder(new EmptyBorder(0,150,60,0));
 
 
             loginDataPanel.add(imgLabel, BorderLayout.PAGE_START);
@@ -212,8 +229,19 @@ public class LoginPage extends JFrame implements ActionListener {
                 if (rs.next()) {
                     dispose();
 
+                    FlashScreenPanel dialogPanel = new FlashScreenPanel();
+                    JDialog dialog = new JDialog(this, "Flash Screen", Dialog.ModalityType.APPLICATION_MODAL);
+                    dialog.add(dialogPanel);
+                    dialog.pack();
+                    dialog.setLocationRelativeTo(null);
+                    dialogPanel.startProgress();
+                    dialog.setVisible(true);
+
                     AuctionBoard auctionBoard = new AuctionBoard();
                     auctionBoard.setVisible(true);
+
+
+
 
                     JOptionPane.showMessageDialog(btnNewButton, "You have successfully logged in");
                 } else {
@@ -239,10 +267,26 @@ public class LoginPage extends JFrame implements ActionListener {
 
         }
 
-    public void onBackPressed(){
-        /*frame1.setVisible(true);
-        frame2.setVisible(false);
-        frame2.dispose();*/
+    public void showLoginProgress(JFrame mainFrame) {
+        FlashScreenPanel dialogPanel = new FlashScreenPanel();
+        JDialog dialog = new JDialog(mainFrame, "Flash Screen", Dialog.ModalityType.APPLICATION_MODAL);
+        dialog.add(dialogPanel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(null);
+
+        dialogPanel.startProgress();
+        dialog.setVisible(true);
+
     }
 
+    public void closeLoginPage () {
+        LoginPage loginPage = new LoginPage();
+        loginPage.dispose();
+    }
+
+    private static WindowListener closeWindow = new WindowAdapter(){
+        public void windowClosing(WindowEvent e){
+            e.getWindow().dispose();
+        }
+    };
 }

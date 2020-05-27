@@ -1,13 +1,27 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageProducer;
-import java.util.Arrays;
+import java.sql.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.*;
 import java.util.List;
 
+import dbhelper.AuctionItem;
+import dbhelper.DbQuery;
+import dbhelper.User;
 import net.miginfocom.swing.MigLayout;
 import util.DropShadowPanel;
+import util.HoverButton;
 import util.LevelBar;
 import util.SelectedImageFilter;
 
@@ -18,57 +32,62 @@ public class ItemDetail extends JFrame{
     JPanel topPanel;
     JPanel contentPanel;
 
-    JLabel labelShowLevel;
-    JLabel textShowLevel;
+    JLabel timeLeftLabel;
+    JLabel timeLeft;
 
-    JLabel labelAddEntity;
-    JLabel textAddEntity;
+    JLabel bidHistoryLabel;
+    JLabel bidHistory;
 
-    JLabel labelRemoveEntity;
-    JLabel textRemoveEntity;
+    JLabel startingBidLabel;
+    JLabel startingBid;
 
-    JLabel labelSearchEntity;
-    JFormattedTextField textSearchEntity;
-    JButton buttonSearchEntity;
+    JLabel maxBid;
+    JFormattedTextField bidTextField;
+    JButton placeBidButton;
 
-    JLabel totalLevels;
+    JLabel lowBidLabel;
 
-    public static void main (String [] args){
-        EventQueue.invokeLater(ItemDetail::new);
+    private static int itemID;
+    private static String itemName;
+    private static Timestamp timestamp;
+    private static int lowBid;
+    private static int bidHis;
+    private static byte[] imgPath;
+
+    String userName;
+    int userID;
+    int userBid;
+
+
+
+    public ItemDetail(int itemID, String itemName, Timestamp timestamp, int lowBid, int bidHistory, byte[] imgPath) {
+        ItemDetail.itemID = itemID;
+        ItemDetail.itemName = itemName;
+        ItemDetail.timestamp = timestamp;
+        ItemDetail.lowBid = lowBid;
+        ItemDetail.bidHis = bidHistory;
+        ItemDetail.imgPath = imgPath;
+
     }
 
 
-    public ItemDetail() {
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(900, 700);
-        setResizable(false);
-        setLocationRelativeTo(null);
-        setBackground(Color.white);
-
-        initLayout();
-
-        pack();
-        setVisible(true);
-    }
-
-    void initLayout() {
+    JPanel itemDetailPanel() {
         JPanel p = new JPanel();
         GroupLayout layout = new GroupLayout(p);
         p.setLayout(layout);
-        layout.setAutoCreateGaps(true);
-        layout.setAutoCreateContainerGaps(true);
 
         layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).
                 addGroup(layout.createSequentialGroup().
-                        addComponent(imageMetaData(), 400 , 400 , 400).
-                        addComponent(contentPanel(),470,470,470)));
+                        addComponent(imageMetaData(), 330 , 330 , 330).
+                        addComponent(contentPanel(),450,450,450)));
 
         layout.setVerticalGroup(layout.createSequentialGroup().
                 addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                                .addComponent(imageMetaData(), 400,400,400).
-                                addComponent(contentPanel(), 400, 400,400)));
+                                .addComponent(imageMetaData(), 270,270,270).
+                                addComponent(contentPanel(), 500, 500,500)));
 
-        add(p);
+
+        return p;
     }
 
     JPanel contentPanel() {
@@ -83,8 +102,6 @@ public class ItemDetail extends JFrame{
             contentPanel.setBackground(Color.WHITE);
 
             contentPanel.add(topPanel, "cell 0 0");
-            //  insert invisible components to provide top space
-            contentPanel.add(Box.createRigidArea(new Dimension(0, 80)));
             contentPanel.add(imgPanel, "cell 0 1");
 
 
@@ -101,12 +118,12 @@ public class ItemDetail extends JFrame{
 
 
         // Item Name
-        JLabel itemName = new JLabel();
-        itemName.setText("Golden Watch");
-        itemName.setFont(new Font("Verdana",Font.BOLD, 16));
-        itemName.setOpaque(true);
-        itemName.setBackground(Color.WHITE);
-        itemName.setBorder(new EmptyBorder(20,0,0,0));
+        JLabel itemNameLbl = new JLabel();
+        itemNameLbl.setText(itemName);
+        itemNameLbl.setFont(new Font("Verdana",Font.BOLD, 16));
+        itemNameLbl.setOpaque(true);
+        itemNameLbl.setBackground(Color.WHITE);
+        itemNameLbl.setBorder(new EmptyBorder(60,0,0,0));
 
 
 
@@ -129,21 +146,17 @@ public class ItemDetail extends JFrame{
         // Description Text
 
         JTextArea descText = new JTextArea();
-        descText.setText("Golden watch was discovered during world war two when soldiers \nwhen agitated by the drones");
+        descText.setText("Golden watch was discovered during world war\ntwo when soldiers when agitated by the drones");
         descText.setBorder(new EmptyBorder(20,0,0,0));
         descText.setEditable(false);
 
 
-        topPanel.add(itemName,  "cell 0 0");
+        topPanel.add(itemNameLbl,  "cell 0 0");
         topPanel.add(levelBar, "cell 0 1");
         topPanel.add(availText, "cell 0 2");
         topPanel.add(descText, "cell 0 3");
 
 
-    }
-
-    private static ImageIcon makeStarImageIcon(ImageProducer ip, float rf, float gf, float bf) {
-        return new ImageIcon(Toolkit.getDefaultToolkit().createImage(new FilteredImageSource(ip, new SelectedImageFilter(rf, gf, bf))));
     }
 
     public void initGridPanel () {
@@ -160,22 +173,50 @@ public class ItemDetail extends JFrame{
         JPanel panel = new JPanel();
         panel.setBackground(Color.WHITE);
 
-        labelShowLevel = new JLabel("Time Left");
-        labelAddEntity = new JLabel("Bid History");
-        labelRemoveEntity = new JLabel("Starting Bid");
-        labelSearchEntity = new JLabel("Your max bid");
+        timeLeftLabel = new JLabel("Time Left");
+        bidHistoryLabel = new JLabel("Bid History");
+        startingBidLabel = new JLabel("Starting Bid");
+        maxBid = new JLabel("Your max bid");
 
-        textShowLevel = new JLabel();
-        textAddEntity = new JLabel();
-        textRemoveEntity = new JLabel();
-        textSearchEntity = new JFormattedTextField();
+        timeLeft = new JLabel();
+        bidHistory = new JLabel();
+        startingBid = new JLabel();
+        bidTextField = new JFormattedTextField();
 
-        textShowLevel.setText("(24 Jun 14 09:45 UTC");
-        textAddEntity.setText("<html><font color='blue'>0 Bid</font></html>");
-        textRemoveEntity.setText("$200");
-        buttonSearchEntity = new JButton("Place Bid");
+        // Format Date
 
-        totalLevels = new JLabel("Enter $200 or more");
+        String timeout = new SimpleDateFormat(("dd MMM yy HH:mm"))
+                .format(timestamp.getTime());
+
+        // Will print in UTC
+        timeLeft.setText("(" + timeout + " UTC" + ")");
+        bidHistory.setText(bidHis + " Bids");
+
+        startingBid.setText("\u00A2" + lowBid);
+        placeBidButton = new JButton("Place Bid");
+
+        lowBidLabel = new JLabel("Enter " + lowBid + " or more");
+
+
+
+        placeBidButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String userBid = bidTextField.getText().trim();
+                // Casting
+                int userBidNum = Integer.parseInt(userBid);
+                if (userBidNum > lowBid) {
+
+                    bidHistory.setText(bidHis + " Bids");
+                    updateUserMaxBid(userBidNum);
+                    setUserBid();
+
+
+                } else {
+                    System.out.println("Your BID is low");
+                }
+            }
+        });
 
 
 
@@ -183,24 +224,24 @@ public class ItemDetail extends JFrame{
         panel.setLayout(layout);
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
-        layout.linkSize(SwingConstants.HORIZONTAL, buttonSearchEntity);
+        layout.linkSize(SwingConstants.HORIZONTAL, placeBidButton);
 
         GroupLayout.ParallelGroup hGroup = layout.createParallelGroup(GroupLayout.Alignment.CENTER); // Will align the labels the way you wanted
 
         hGroup.addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup()
-                        .addComponent(labelShowLevel)
-                        .addComponent(labelAddEntity)
-                        .addComponent(labelRemoveEntity)
-                        .addComponent(labelSearchEntity))
+                        .addComponent(timeLeftLabel)
+                        .addComponent(bidHistoryLabel)
+                        .addComponent(startingBidLabel)
+                        .addComponent(maxBid))
                 .addGroup(layout.createParallelGroup()
-                        .addComponent(textShowLevel)
-                        .addComponent(textAddEntity)
-                        .addComponent(textRemoveEntity)
-                        .addComponent(textSearchEntity))
+                        .addComponent(timeLeft)
+                        .addComponent(bidHistory)
+                        .addComponent(startingBid)
+                        .addComponent(bidTextField))
                 .addGroup(layout.createParallelGroup()
-                        .addComponent(buttonSearchEntity)));
-        hGroup.addComponent(totalLevels);
+                        .addComponent(placeBidButton)));
+        hGroup.addComponent(lowBidLabel);
 
         layout.setHorizontalGroup(hGroup);
 
@@ -208,20 +249,20 @@ public class ItemDetail extends JFrame{
         GroupLayout.SequentialGroup vGroup = layout.createSequentialGroup();
 
         vGroup.addGroup(layout.createParallelGroup()
-                .addComponent(labelShowLevel)
-                .addComponent(textShowLevel));
+                .addComponent(timeLeftLabel)
+                .addComponent(timeLeft));
         vGroup.addGroup(layout.createParallelGroup()
-                .addComponent(labelAddEntity)
-                .addComponent(textAddEntity));
+                .addComponent(bidHistoryLabel)
+                .addComponent(bidHistory));
         vGroup.addGroup(layout.createParallelGroup()
-                .addComponent(labelRemoveEntity)
-                .addComponent(textRemoveEntity));
+                .addComponent(startingBidLabel)
+                .addComponent(startingBid));
         vGroup.addGroup(layout.createParallelGroup()
-                .addComponent(labelSearchEntity)
-                .addComponent(textSearchEntity)
-                .addComponent(buttonSearchEntity));
+                .addComponent(maxBid)
+                .addComponent(bidTextField)
+                .addComponent(placeBidButton));
         vGroup.addGroup(layout.createParallelGroup()
-                .addComponent(totalLevels));
+                .addComponent(lowBidLabel));
 
         layout.setVerticalGroup(vGroup);
 
@@ -229,10 +270,44 @@ public class ItemDetail extends JFrame{
         return panel;
     }
 
+    void updateUserMaxBid(int userBidNum) {
+        try {
+            Connection connection = (Connection) DriverManager.getConnection("jdbc:mysql://localhost:8889/titodb",
+                    "root", "root");
+
+            PreparedStatement st =  connection
+                    .prepareStatement("UPDATE tbl_user SET bid = ?, WHERE id = ?");
+
+            st.setString(4, String.valueOf(userBidNum));
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                dispose();
+
+
+            }
+
+
+        } catch (SQLException sqlException) {
+            sqlException.printStackTrace();
+        }
+    }
+
+    void setUserBid () {
+        DbQuery mq = new DbQuery();
+        ArrayList<User> list = mq.BindUser();
+
+        for (int i = 0; i < list.size(); i++) {
+
+            bidHis = list.get(i).getBid();
+        }
+        bidHistory.setText(String.valueOf(bidHis));
+
+    }
+
+
     DropShadowPanel imageMetaData() {
         if (imgMetaData == null) {
             imgMetaData = new DropShadowPanel(4);
-            imgMetaData.setPreferredSize(new Dimension(60, 520));
 
             initUserProfile(imgMetaData);
 
@@ -246,10 +321,9 @@ public class ItemDetail extends JFrame{
         JPanel userView = new JPanel();
         userView.setBackground(new Color(240, 241,248));
         // Image View
-        String path = "/resources/img_gold_pocket.png";
-        ImageIcon icon = new ImageIcon(AuctionBoard.class.getResource(path));
+        ImageIcon icon = new ImageIcon(imgPath);
         Image image = icon.getImage(); // transform it
-        Image newImg = image.getScaledInstance(400, 350,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+        Image newImg = image.getScaledInstance(330, 260,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
         icon = new ImageIcon(newImg);  // transform it back
         JLabel imgLabel = new JLabel(icon);
 
@@ -261,6 +335,8 @@ public class ItemDetail extends JFrame{
 
     }
 
-
+    private static ImageIcon makeStarImageIcon(ImageProducer ip, float rf, float gf, float bf) {
+        return new ImageIcon(Toolkit.getDefaultToolkit().createImage(new FilteredImageSource(ip, new SelectedImageFilter(rf, gf, bf))));
+    }
 
 }
