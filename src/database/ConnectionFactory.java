@@ -28,7 +28,7 @@ public class ConnectionFactory {
     public Connection createConnection() {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection(URL + unicode + DATABASE_NAME, USER, PASSWORD);
+            connection = DriverManager.getConnection(URL + DATABASE_NAME, USER, PASSWORD);
         } catch (SQLException e) {
             System.out.println("ERROR: Unable to Connect to Database.");
         }
