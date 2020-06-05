@@ -3,18 +3,20 @@ package entity;
 public class Item {
 
 
+    private int itemId;
     private String itemName;
-    private String timestamp;
-    private int lowBid;
+
+
+    private String description;
+    private String startTime;
+    private String endTime;
+    private int startBid;
+    private int highestBid;
     private int bidHistory;
     private byte[] image;
+    
 
-
-    private int startBid;
-
-
-    private int itemId;
-
+    
     public Item() {
 
     }
@@ -35,20 +37,44 @@ public class Item {
         this.itemName = itemName;
     }
 
-    public String getTimestamp() {
-        return timestamp;
+    public String getDescription() {
+        return description;
     }
 
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public int getLowBid() {
-        return lowBid;
+    public String getStartTime() {
+        return startTime;
     }
 
-    public void setLowBid(int lowBid) {
-        this.lowBid = lowBid;
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    public int getHighestBid() {
+        return highestBid;
+    }
+
+    public void setHighestBid(int highestBid) {
+        this.highestBid = highestBid;
+    }
+
+    public int getStartBid() {
+        return startBid;
+    }
+
+    public void setStartBid(int startBid) {
+        this.startBid = startBid;
     }
 
     public int getBidHistory() {
@@ -67,16 +93,7 @@ public class Item {
         this.image = image;
     }
 
-    public int getStartBid() {
-        return startBid;
-    }
-
-    public void setStartBid(int startBid) {
-        this.startBid = startBid;
-    }
-
     // String
-
 
 
 }

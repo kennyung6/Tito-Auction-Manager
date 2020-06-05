@@ -31,9 +31,11 @@ public class ItemDao {
 				and store it in auction object*/
                 item.setItemId(rs.getInt("it_id"));
                 item.setItemName(rs.getString("it_name"));
-                item.setTimestamp(rs.getString("it_timeout"));
+                item.setDescription(rs.getString("it_description"));
+                item.setStartTime(rs.getString("it_startime"));
+                item.setEndTime(rs.getString("it_endtime"));
                 item.setStartBid(rs.getInt("it_startbid"));
-                item.setLowBid(rs.getInt("it_lowbid"));
+                item.setHighestBid(rs.getInt("it_highbid"));
                 item.setBidHistory(rs.getInt("it_bidhistory"));
                 item.setImage(rs.getBytes("it_image"));
 
@@ -48,12 +50,46 @@ public class ItemDao {
         return list;
     }
 
-    public void update(Item item) {
-        String sql = "UPDATE tbl_items SET it_lowbid=?, it_bidhistory=? WHERE it_id=?";
+    public Item getItemDetails(int itemID) throws SQLException {
+        String query = "SELECT * FROM tbl_items WHERE it_id=" + itemID;
+        ResultSet rs = null;
+        Connection connection = null;
+        Statement statement = null;
+        try {
+            connection = ConnectionFactory.getConnection();
+            statement = connection.createStatement();
+            rs = statement.executeQuery(query);
+            Item item = new Item();
+            while (rs.next()) {
+
+                /*Retrieve one auction item and store it in auction object*/
+                item.setItemId(rs.getInt("it_id"));
+                item.setItemName(rs.getString("it_name"));
+                item.setDescription(rs.getString("it_description"));
+                item.setStartTime(rs.getString("it_startime"));
+                item.setEndTime(rs.getString("it_endtime"));
+                item.setStartBid(rs.getInt("it_startbid"));
+                item.setHighestBid(rs.getInt("it_highbid"));
+                item.setBidHistory(rs.getInt("it_bidhistory"));
+                item.setImage(rs.getBytes("it_image"));
+
+
+            }
+            return item;
+        } finally {
+            DbUtil.close(rs);
+            DbUtil.close(statement);
+            DbUtil.close(connection);
+        }
+
+    }
+
+    public void updateItemDetails(Item item) {
+        String sql = "UPDATE tbl_items SET it_highbid=?, it_bidhistory=? WHERE it_id=?";
         try {
             connection = ConnectionFactory.getConnection();
             PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, item.getLowBid());
+            stmt.setInt(1, item.getHighestBid());
             stmt.setInt(2, item.getBidHistory());
             stmt.setInt(3, item.getItemId());
             stmt.execute();
@@ -68,7 +104,6 @@ public class ItemDao {
             }
         }
     }
-
 
     public void delete(Item item) {
         try {

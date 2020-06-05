@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
@@ -32,14 +33,8 @@ public class Dashboard extends JFrame {
     private HomePanel homePanel;
     private ItemPanel auctionPanel;
     private JButton homeMenuButton;
-    private final Border defaultDashboardMenuBorder = createEmptyBorder(0, 5, 0, 0);
-    private final Border selectedDashboardMenuBorder = createMatteBorder(0, 5, 0, 0,
-            new Color(255, 162, 0));
-
     private JButton auctionMenuButton;
     private JButton logoutButton;
-
-
 
 
     public Dashboard() {
@@ -164,21 +159,18 @@ public class Dashboard extends JFrame {
             // show watermark
 
             JPanel sideButtonPanel = new JPanel(new GridLayout(3,1));
+            sideButtonPanel.setBorder(createEmptyBorder(50,0,0,0));
             sideButtonPanel.setBackground(new Color(51, 65, 130));
 
 
 
-
-
             homeMenuButton = new JButton();
-            homeMenuButton.setBackground(new Color(51, 65, 130));
+            homeMenuButton.setBorder(BorderFactory.createLoweredBevelBorder());
+            homeMenuButton.setBackground(new Color(42, 54, 111, 255));
             homeMenuButton.setFont(new Font("Tahoma", Font.BOLD, 14)); 
             homeMenuButton.setForeground(new Color(255, 255, 255));
             homeMenuButton.setIcon(new ImageIcon(getClass().getResource("/images/home.png"))); 
             homeMenuButton.setText("Home");
-            homeMenuButton.setBorder(createMatteBorder(0, 5, 0, 0, new Color(243, 187, 0)));
-
-
             homeMenuButton.setContentAreaFilled(false);
             homeMenuButton.setHorizontalAlignment(SwingConstants.CENTER);
             homeMenuButton.setVerticalAlignment(SwingConstants.CENTER);
@@ -187,38 +179,40 @@ public class Dashboard extends JFrame {
             homeMenuButton.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/images/home.png"))); 
             homeMenuButton.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/images/home1x.png"))); 
             homeMenuButton.addActionListener(evt -> {
-                homeMenuButton.setBorder(selectedDashboardMenuBorder);
-                auctionMenuButton.setBorder(defaultDashboardMenuBorder);
+                homeMenuButton.setBackground(new Color(42, 54, 111, 255));
+                homeMenuButton.setBorder(BorderFactory.createLoweredBevelBorder());
                 auctionMenuButton.setBackground(new Color(51, 65, 130));
+                auctionMenuButton.setBorder(null);
 
                 homeMenuButtonActionPerformed(evt);
             });
 
 
-            /*homeMenuButton.addActionListener(new DetailPanel.Button1Handler());
-*/
-
-            auctionMenuButton = new JButton();
-            auctionMenuButton.setBackground(new Color(51, 65, 130));
-            auctionMenuButton.setFont(new Font("Tahoma", 1, 14));
-            auctionMenuButton.setForeground(new Color(255, 255, 255));
-            auctionMenuButton.setIcon(new ImageIcon(getClass().getResource("/images/auction.png"))); 
-            auctionMenuButton.setText("Auction");
-            auctionMenuButton.setBorder(createEmptyBorder(1, 5, 1, 1));
-            auctionMenuButton.setContentAreaFilled(false);
-            auctionMenuButton.setHorizontalAlignment(SwingConstants.CENTER);
-            auctionMenuButton.setIconTextGap(10);
 
 
+           auctionMenuButton = new JButton();
+           auctionMenuButton.setBackground(new Color(51, 65, 130));
+           auctionMenuButton.setFont(new java.awt.Font("Tahoma", Font.BOLD, 14));
+           auctionMenuButton.setForeground(new java.awt.Color(255, 255, 255));
+           auctionMenuButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/auction.png")));
+           auctionMenuButton.setText("Auction");
+           auctionMenuButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 5, 1, 1));
+           auctionMenuButton.setContentAreaFilled(false);
+           auctionMenuButton.setHorizontalAlignment(SwingConstants.CENTER);
+           auctionMenuButton.setIconTextGap(10);
+           auctionMenuButton.setOpaque(true);
+           auctionMenuButton.setPressedIcon(new ImageIcon(getClass().getResource("/images/auction.png")));
+           auctionMenuButton.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/images/auction1x.png")));
+           auctionMenuButton.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    auctionMenuButton.setBackground(new Color(42, 54, 111, 255));
+                    auctionMenuButton.setBorder(BorderFactory.createLoweredBevelBorder());
+                    homeMenuButton.setBackground(new Color(51, 65, 130));
+                    homeMenuButton.setBorder(null);
 
-            auctionMenuButton.setPressedIcon(new ImageIcon(getClass().getResource("/images/auction.png"))); 
-            auctionMenuButton.setSelectedIcon(new ImageIcon(getClass().getResource("/images/auction1x.png"))); 
-            auctionMenuButton.addActionListener(evt -> {
-                auctionMenuButton.setBorder(selectedDashboardMenuBorder);
+                   auctionMenuButtonActionPerformed(evt);
+                }
 
-                homeMenuButton.setBackground(new Color(51, 65, 130));
-                homeMenuButton.setBorder(defaultDashboardMenuBorder);
-                auctionMenuButtonActionPerformed(evt);
             });
 
 
@@ -238,8 +232,11 @@ public class Dashboard extends JFrame {
             logoutButton.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/images/logout1x.png"))); 
             logoutButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
+
+                    logoutButton.setBackground(new Color(42, 54, 111, 255));
                     logoutButtonActionPerformed(evt);
                 }
+
             });
 
 
