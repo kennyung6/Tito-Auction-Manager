@@ -1,354 +1,623 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package ui;
 
+import dao.BidDao;
+import dao.ItemDao;
+import dao.BidTable;
+import database.SerializeIO;
+import entity.Bid;
+import entity.Item;
+import entity.User;
+import helpers.*;
+import util.DateTimeUtils;
+import util.Logy;
+import widget.Alert;
+
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.BevelBorder;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.ImageProducer;
-import java.sql.*;
+import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Date;
 import java.util.List;
 
-import dao.ItemDao;
-import entity.Item;
-import helpers.StarImageIcon;
-import net.miginfocom.swing.MigLayout;
-import helpers.DropShadowPanel;
-import helpers.LevelBar;
-import widget.Alert;
 
-public  class DetailPanel extends JPanel{
+public class DetailPanel extends JPanel {
 
-    // Panels
-    private JPanel imgPanel;
-    private DropShadowPanel itemImage;
-    private JPanel topPanel;
+    private static final String filepath = "/Users/kennyung6/Desktop/tamfile.txt";
+    helpers.AnimatedPDialog.ProgressDialog dialog;
+    // Variables declaration
+    private JPanel parentPanel;
+    private JButton bidButton;
+    private JPanel bidTable;
     private JPanel contentPanel;
-
-    // Display Labels
-    public JLabel endTimeLabel;
-    public JLabel startBidLabel;
+    private JTextArea desTextField;
+    private JLabel endTimeLabel;
+    private JLabel endValue;
+    private JTable highBidTable;
+    private JPanel itemImage;
+    private JLabel itemNameLabel;
+    private JButton optOutButton;
+    private JLabel jLabel1;
+    private JLabel highBidTableLabel;
+    private JLabel jLabel3;
+    private JPanel jPanel1;
+    private JScrollPane jScrollPane1;
+    private JScrollPane jScrollPane2;
+    private JSeparator jSeparator1;
+    private JFormattedTextField maxBidField;
+    private JPanel ratingPanel;
+    private JButton refreshButton;
+    private JLabel startBidLabel;
+    private JLabel maxBidLabel;
     private JLabel highBidLabel;
-    public JLabel bidHisLabel;
-    public JLabel maxBidLabel;
-
-    // Value Labels
-    public JLabel startTime;
-    public JLabel endTime;
-    public JLabel startBid;
-    public JLabel highBid;
-    public JLabel bidHis;
-    private JFormattedTextField bidTextField;
-    public JButton placeBidBtn;
-    public JButton optOutBtn;
-
-
+    private JLabel startBidValue;
+    private JLabel highBidValue;
+    private JLabel startTimeLabel;
+    private JLabel startValue;
+    private JPanel xContentOne;
+    // End of variables declaration
+    private JPanel xContentTwo;
     private Item detailItem;
     private int itemID;
+    private ItemDao dao;
+    private int optOutItemID;
+    private int maxBidID;
+    private int maxBid;
+    private DefaultTableModel model;
+    private int currentUserBid;
+    private BidTable tableModel;
+    private long interval;
+    private String itemEndTime;
+    private String itemEndDate;
 
-
-
+    /**
+     * Creates new form ItemDetail
+     */
     public DetailPanel(int clickedItem) {
         this.itemID = clickedItem;
+
+        try {
+            this.dao = new ItemDao();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+        }
+
         getItemDetails();
-
-
+        initComponents();
+        showMaxBidsTable();
 
         // Base Panel Background
-        setBackground(Color.WHITE);
-        add(detailLayout());
+        setBackground(new Color(255, 255, 255));
         revalidate();
         repaint();
     }
 
-    JPanel detailLayout() {
-        JPanel p = new JPanel();
-        p.setBackground(Color.WHITE);
-        GroupLayout layout = new GroupLayout(p);
-        p.setLayout(layout);
+    private void initComponents() {
 
-        layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).
-                addGroup(layout.createSequentialGroup().
-                        addComponent(itemImage(), 360 , 360 , 360).
-                        addComponent(basePanel(),450,450,450)));
-
-        layout.setVerticalGroup(layout.createSequentialGroup().
-                addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-                        .addComponent(itemImage(), 290,290,290).
-                                addComponent(basePanel(), 500, 500,500)));
-
-
-        return p;
-    }
-
-    JPanel basePanel() {
-        if (contentPanel == null) {
-
-            initTopPanel();
-            initGridPanel();
-
-            // Split into Two Panels
-            contentPanel = new JPanel();
-            contentPanel.setLayout(new MigLayout());
-            contentPanel.setBackground(Color.WHITE);
-
-            contentPanel.add(topPanel, "cell 0 0");
-            contentPanel.add(imgPanel, "cell 0 1");
-        }
-        return contentPanel;
-    }
-
-    private void initTopPanel () {
-        // Top Panel
-        topPanel = new JPanel(new MigLayout());
-        topPanel.setBackground(Color.WHITE);
-
-        // Item Name
-        JLabel itemNameLbl = new JLabel();
-        itemNameLbl.setText(detailItem.getItemName());
-        System.out.println(detailItem.getItemName());
-        itemNameLbl.setFont(new Font("Verdana",Font.BOLD, 16));
-        itemNameLbl.setOpaque(true);
-        itemNameLbl.setBackground(Color.WHITE);
-        itemNameLbl.setBorder(new EmptyBorder(60,0,0,0));
+        itemImage = new JPanel();
+        jLabel1 = new JLabel();
+        bidTable = new JPanel();
+        jScrollPane2 = new JScrollPane();
+        highBidTable = new JTable();
+        highBidTableLabel = new JLabel();
+        contentPanel = new JPanel();
+        itemNameLabel = new JLabel();
+        jScrollPane1 = new JScrollPane();
+        desTextField = new JTextArea();
+        ratingPanel = new JPanel();
+        jSeparator1 = new JSeparator();
+        jLabel3 = new JLabel();
+        startTimeLabel = new JLabel();
+        startValue = new JLabel();
+        endTimeLabel = new JLabel();
+        endValue = new JLabel();
+        startBidLabel = new JLabel();
+        startBidValue = new JLabel();
+        jPanel1 = new JPanel();
+        maxBidField = new JFormattedTextField();
+        maxBidLabel = new JLabel();
+        bidButton = new JButton();
+        highBidLabel = new JLabel();
+        highBidValue = new JLabel();
+        xContentOne = new JPanel();
+        xContentTwo = new JPanel();
+        refreshButton = new JButton();
+        optOutButton = new JButton();
 
 
-        // Create rating Bar
-        ImageIcon defaultIcon = new ImageIcon(getClass().getResource("/images/31g.png"));
-        ImageProducer ip = defaultIcon.getImage().getSource();
-        List<ImageIcon> list;
-        StarImageIcon starImageIcon = new StarImageIcon();
-        ImageIcon star = starImageIcon.makeStarImageIcon(ip, 1f, 1f, 0f);
-        list = Arrays.asList(star, star, star, star, star);
-        LevelBar levelBar = new LevelBar(defaultIcon,list,1);
-        levelBar.setBackground(Color.white);
-        levelBar.setBorder(new EmptyBorder(5,0,0,450));
-
-
-        // Availability Text
-        JLabel availText = new JLabel();
-        availText.setText("<html>Availability: <font color='blue'>In stock</font></html>");
-        availText.setBorder(new EmptyBorder(5,0,0,0));
-
-        // Description Text
-        JTextArea descText = new JTextArea();
-        descText.setLineWrap(true);
-        descText.setColumns(34);
-        descText.setEditable(false);
-        descText.setText(detailItem.getDescription());
-        descText.setBorder(new EmptyBorder(20,0,0,0));
-
-        topPanel.add(itemNameLbl,  "cell 0 0");
-        topPanel.add(levelBar, "cell 0 1");
-        topPanel.add(availText, "cell 0 2");
-        topPanel.add(descText, "cell 0 3");
-
+        leftViewComponents();
+        rightViewComponents();
+        add(parentPanel());
 
     }
 
-    private void initGridPanel () {
-        // 4x4 GridLayout Panel
-        imgPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        imgPanel.setBackground(Color.WHITE);
-        imgPanel.add(rightView());
+    private JPanel parentPanel() {
 
+        parentPanel = new JPanel();
+        parentPanel.setBackground(new Color(255, 255, 255));
+        GroupLayout layout = new GroupLayout(parentPanel);
+        parentPanel.setLayout(layout);
+        layout.setHorizontalGroup(
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                        .addGap(0, 0, 0)
+                                        .addComponent(itemImage, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createSequentialGroup()
+                                        .addGap(28, 28, 28)
+                                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                                .addComponent(xContentOne, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                                .addGroup(layout.createSequentialGroup()
+                                                        .addGap(6, 6, 6)
+                                                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                                                .addGroup(layout.createSequentialGroup()
+                                                                        .addGap(6, 6, 6)
+                                                                        .addComponent(bidTable, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                                                .addComponent(xContentTwo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))))
+                                .addGroup(layout.createSequentialGroup()
+                                        .addGap(186, 186, 186)
+                                        .addComponent(optOutButton)))
+                        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                                        .addComponent(contentPanel, GroupLayout.PREFERRED_SIZE, 470, GroupLayout.PREFERRED_SIZE)
+                                        .addGap(5, 5, 5))
+                                .addGroup(layout.createSequentialGroup()
+                                        .addGap(234, 234, 234)
+                                        .addComponent(refreshButton)
+                                        .addContainerGap(30, Short.MAX_VALUE))))
+        );
+        layout.setVerticalGroup(
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(10, 10, 10)
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addComponent(itemImage, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                                .addGap(2, 2, 2)
+                                                .addComponent(xContentOne, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                                .addGap(0, 0, 0)
+                                                .addComponent(xContentTwo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                                .addGap(0, 0, Short.MAX_VALUE)
+                                                .addComponent(bidTable, GroupLayout.PREFERRED_SIZE, 173, GroupLayout.PREFERRED_SIZE)
+                                                .addGap(7, 7, 7)
+                                                .addComponent(optOutButton, GroupLayout.PREFERRED_SIZE, 28, GroupLayout.PREFERRED_SIZE)
+                                        )
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addGap(50, 50, 50)
+                                                .addComponent(contentPanel, GroupLayout.PREFERRED_SIZE, 470, GroupLayout.PREFERRED_SIZE)
+                                                .addGap(80, 80, 80)
+                                                .addComponent(refreshButton, GroupLayout.DEFAULT_SIZE, 20, Short.MAX_VALUE)
+                                        )))
+        );
+
+        return parentPanel;
     }
 
-    private DropShadowPanel itemImage() {
-        if (itemImage == null) {
-            itemImage = new DropShadowPanel(4);
-            itemImage.setBackground(Color.WHITE);
+    private void leftViewComponents() {
 
-            JPanel userView = new JPanel();
-            userView.setBackground(new Color(240, 241,248));
-            // Image View
-            ImageIcon icon = new ImageIcon(detailItem.getImage());
-            Image image = icon.getImage(); // transform it
-            Image newImg = image.getScaledInstance(350, 280,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
-            icon = new ImageIcon(newImg);  // transform it back
-            JLabel imgLabel = new JLabel(icon);
+        /*
+          ITEM IMAGE VIEW
+         */
 
-            // add to UserView
-            userView.add(imgLabel);
-            itemImage.add(userView);
-        }
-
-        return itemImage;
-    }
-
-    private JPanel rightView() {
-
-        JPanel panel = new JPanel();
-        panel.setBackground(Color.WHITE);
-
-        // Labels
-        endTimeLabel = new JLabel("Time Left");
-        endTime = new JLabel();
-        bidHisLabel = new JLabel("Bid History");
-        bidHis = new JLabel();
-        startBidLabel = new JLabel("Starting Bid");
-        startBid = new JLabel();
-        highBidLabel = new JLabel("Current High Bid");
-        highBid = new JLabel();
-        maxBidLabel = new JLabel("Your max bid");
-        bidTextField = new JFormattedTextField();
-
-        // Buttons
-        placeBidBtn = new JButton("Place Bid");
-        optOutBtn = new JButton();
-        optOutBtn.setBackground(Color.RED);
-        optOutBtn.setText("Opt Out");
+        itemImage.setBackground(new Color(44, 57, 116, 117));
+        itemImage.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
 
-        // Will print in UTC
-        endTime.setText("(" + parseTime(detailItem.getEndTime()) + " UTC" + ")");
-        bidHis.setText(detailItem.getBidHistory() + " Bids");
-        startBid.setText("\u00A2" + detailItem.getStartBid());
-        highBid.setText("\u00A2" + detailItem.getHighestBid());
+        JPanel userView = new JPanel();
+        userView.setBackground(new Color(13, 24, 120));
+        // Image View
+        ImageIcon icon = new ImageIcon(detailItem.getImage());
+        System.out.println(Arrays.toString(detailItem.getImage()));
+        Image image = icon.getImage(); // transform it
+        Image newImg = image.getScaledInstance(439, 398, Image.SCALE_SMOOTH); // scale it the smooth way
+        icon = new ImageIcon(newImg);  // transform it back
+        JLabel imgLabel = new JLabel(icon);
+
+        // add to UserView
+        userView.add(imgLabel);
+        itemImage.add(imgLabel);
 
 
-        placeBidBtn.addActionListener(new ActionListener() {
+
+         /*
+          ITEM IMAGE VIEW DECORATIONS
+         */
+
+
+        xContentOne.setBackground(new Color(51, 65, 130));
+
+        GroupLayout xContentOneLayout = new GroupLayout(xContentOne);
+        xContentOne.setLayout(xContentOneLayout);
+        xContentOneLayout.setHorizontalGroup(
+                xContentOneLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGap(0, 399, Short.MAX_VALUE)
+        );
+        xContentOneLayout.setVerticalGroup(
+                xContentOneLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGap(0, 15, Short.MAX_VALUE)
+        );
+
+        xContentTwo.setBackground(new Color(82, 94, 153));
+
+        GroupLayout xContentTwoLayout = new GroupLayout(xContentTwo);
+        xContentTwo.setLayout(xContentTwoLayout);
+        xContentTwoLayout.setHorizontalGroup(
+                xContentTwoLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGap(0, 387, Short.MAX_VALUE)
+        );
+        xContentTwoLayout.setVerticalGroup(
+                xContentTwoLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGap(0, 12, Short.MAX_VALUE)
+        );
+
+
+
+        /*
+          MAXIMUM BIDS TABLE
+         */
+
+
+        bidTable.setBackground(new Color(204, 204, 204));
+
+        jScrollPane2.setViewportView(highBidTable);
+
+        highBidTableLabel.setFont(new Font("Lucida Grande", 1, 13)); // NOI18N
+        highBidTableLabel.setForeground(new Color(0, 0, 0));
+        highBidTableLabel.setBackground(new Color(184, 200, 217, 255));
+        highBidTableLabel.setOpaque(true);
+        highBidTableLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        highBidTableLabel.setText("HIGHEST BIDS");
+        highBidTableLabel.setAutoscrolls(true);
+        highBidTableLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+
+        // Centers Table texts
+        DefaultTableCellRenderer stringRenderer = (DefaultTableCellRenderer)
+                highBidTable.getDefaultRenderer(String.class);
+        stringRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Centers Table Headers
+        DefaultTableCellRenderer renderer = (DefaultTableCellRenderer)
+                highBidTable.getTableHeader().getDefaultRenderer();
+        renderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        // Increase Cell texts font size
+        Font font = highBidTable.getFont();
+        font = font.deriveFont((float) (font.getSize2D() * 1.10));
+        highBidTable.setFont(font);
+
+        highBidTable.setRowHeight(30);
+        highBidTable.getTableHeader().setFont(new Font("", Font.BOLD, 13));
+
+        GroupLayout bidTableLayout = new GroupLayout(bidTable);
+        bidTable.setLayout(bidTableLayout);
+        bidTableLayout.setHorizontalGroup(
+                bidTableLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addComponent(jScrollPane2, GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                        .addComponent(highBidTableLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        bidTableLayout.setVerticalGroup(
+                bidTableLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGroup(GroupLayout.Alignment.TRAILING, bidTableLayout.createSequentialGroup()
+                                .addComponent(highBidTableLabel, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jScrollPane2, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap())
+        );
+
+
+        optOutButton.setText("Opt Out");
+        optOutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String userBid = bidTextField.getText().trim();
 
-                // Increment bidHis onBidPlaced Success
-                int addBidHis = detailItem.getBidHistory();
+                //Read object and get User id from file
+                SerializeIO serializeIO = new SerializeIO();
+                User user = (User) serializeIO.ReadObjectFromFile(filepath);
+                int userId = user.getId();
 
-                // Add a new bid history (+1) everytime a bid placement is successful
-                addBidHis++;
+                ItemDao itemDao = new ItemDao();
+                itemDao.optOutBid(userId);
 
-                // Cast user input to an integer
-                int userBidNum = Integer.parseInt(userBid);
-                if (userBidNum > detailItem.getStartBid() && userBidNum > detailItem.getHighestBid()) {
+                showMaxBidsTable();
+                resetItemMaxBid();
+            }
 
-                    // Set new Bid history
-                    bidHis.setText(addBidHis + " Bids");
-                    highBid.setText(String.valueOf(userBidNum));
+        });
+
+    }
+
+    private void resetItemMaxBid() {
+        BidDao bidDao = new BidDao();
+        List<Bid> bids;
+        int maxBID = 0;
+
+        try {
+
+            bids = bidDao.getItemMaxs(detailItem.getItemId());
+
+            for (Bid bid : bids) {
+                maxBID = bid.getMaxBid();
+
+                System.out.println("MaxBid: " + maxBID);
+            }
+
+            highBidValue.setText("\u00A2" + maxBID);
 
 
-                    // Update data on Database
-                    updateUserMaxBid(userBidNum, addBidHis);
-
-                    // Refresh Data
-                    getItemDetails();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
 
 
-                    System.out.println("bidHisIncrement: " + addBidHis);
-                    System.out.println("UserBid No: " + userBidNum);
-                    System.out.println("Item ID : " + detailItem.getItemId());
+    }
+
+    private void rightViewComponents() {
+
+        contentPanel.setBackground(new Color(243, 244, 246, 255));
+        contentPanel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+
+        itemNameLabel.setText(detailItem.getItemName());
+        itemNameLabel.setFont(new Font("Lucida Grande", Font.BOLD, 20));
+        itemNameLabel.setForeground(new Color(36, 49, 114));
+
+        desTextField.setEditable(false);
+        desTextField.setFont(new Font("Lucida Grande", Font.PLAIN, 15));
+        desTextField.setBackground(new Color(243, 244, 246, 255));
+        desTextField.setColumns(20);
+        desTextField.setForeground(new Color(0, 0, 0));
+        desTextField.setLineWrap(true);
+        desTextField.setRows(5);
+        desTextField.setText(detailItem.getDescription());
+        desTextField.setWrapStyleWord(true);
+        desTextField.setBorder(null);
+        desTextField.setFocusable(false);
+        desTextField.setRequestFocusEnabled(false);
+
+        ratingPanel.setBackground(new Color(243, 244, 246, 255));
+        ratingPanel.add(displayRating());
 
 
-                    Alert.showInformation(contentPanel, "Bid Placed Successfully");
+        startTimeLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13)); // NOI18N
+        startTimeLabel.setForeground(new Color(0, 0, 0));
+        startTimeLabel.setText("BID Started :");
 
-                } else {
-                    System.out.println("Your BID is low");
-                    Alert.showError(contentPanel, "Bid is lower. Enter an higher amount");
+        startValue.setForeground(new Color(0, 0, 0));
+        startValue.setText(new DateTimeUtils().getTime(detailItem.getStartTime()));
+
+        endTimeLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13)); // NOI18N
+        endTimeLabel.setForeground(new Color(0, 0, 0));
+        endTimeLabel.setText("BID Ends : ");
+
+        endValue.setForeground(new Color(0, 0, 0));
+        endValue.setText(parseTime(new DateTimeUtils().getTime(detailItem.getEndTime())));
+
+        startBidLabel.setFont(new Font("Lucida Grande", Font.BOLD, 13)); // NOI18N
+        startBidLabel.setForeground(new Color(0, 0, 0));
+        startBidLabel.setText("Start BID : ");
+
+        startBidValue.setForeground(new Color(0, 0, 0));
+        startBidValue.setText("\u00A2" + detailItem.getStartBid());
+
+        jPanel1.setBackground(new Color(215, 224, 234, 255));
+        jPanel1.setBorder(BorderFactory.createEtchedBorder());
+
+        maxBidField.setText("");
+        maxBidField.setHorizontalAlignment(SwingConstants.CENTER);
+        // Makes field restrict character input but numbers
+        maxBidField.addKeyListener(new KeyAdapter() {
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if (!((c >= '0') && (c <= '9') ||
+                        (c == KeyEvent.VK_BACK_SPACE) ||
+                        (c == KeyEvent.VK_DELETE))) {
+                    getToolkit().beep();
+                    e.consume();
                 }
             }
         });
 
-        // Delete Item
-        optOutBtn.addActionListener(new ActionListener() {
+        maxBidField.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                maxBidFieldActionPerformed(evt);
+            }
+        });
+
+        maxBidLabel.setFont(new Font("Lucida Grande", Font.BOLD, 16));
+        maxBidLabel.setForeground(new Color(0, 0, 0));
+        maxBidLabel.setText("Enter Max Bid : ");
+
+        bidButton.setText("Place Bid");
+        bidButton.setBackground(new Color(10, 114, 22));
+        bidButton.setForeground(Color.WHITE);
+        bidButton.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+        bidButton.setOpaque(true);
+        bidButton.setBorderPainted(false);
+
+
+        bidButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                optOutBtnBid();
+
+                bidButtonAction(e);
+
             }
         });
 
 
+        GroupLayout jPanel1Layout = new GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+                jPanel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(20, 20, 20)
+                                .addComponent(maxBidLabel)
+                                .addGap(20, 20, 20)
+                                .addComponent(maxBidField, GroupLayout.PREFERRED_SIZE, 111, GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
+                                .addComponent(bidButton)
+                                .addGap(20, 20, 20))
+        );
+        jPanel1Layout.setVerticalGroup(
+                jPanel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(20, 20, 20)
+                                .addGroup(jPanel1Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(maxBidLabel)
+                                        .addComponent(maxBidField, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(bidButton))
+                                .addContainerGap(32, Short.MAX_VALUE))
+        );
 
-        GroupLayout layout = new GroupLayout(panel);
-        panel.setLayout(layout);
-        layout.setAutoCreateGaps(true);
-        layout.setAutoCreateContainerGaps(true);
-        layout.linkSize(SwingConstants.HORIZONTAL, placeBidBtn);
+        highBidLabel.setFont(new Font("Lucida Grande", 1, 13)); // NOI18N
+        highBidLabel.setForeground(new Color(0, 0, 0));
+        highBidLabel.setText("Highest Bid :");
 
-        GroupLayout.ParallelGroup hGroup = layout.createParallelGroup(GroupLayout.Alignment.CENTER); // Will align the labels the way you wanted
+        highBidValue.setForeground(new Color(0, 0, 0));
+        highBidValue.setText("\u00A2" + detailItem.getHighestBid());
 
-        hGroup.addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup()
-                        .addComponent(endTimeLabel)
-                        .addComponent(bidHisLabel)
-                        .addComponent(startBidLabel)
-                        .addComponent(highBidLabel)
-                        .addComponent(maxBidLabel))
-                .addGroup(layout.createParallelGroup()
-                        .addComponent(endTime)
-                        .addComponent(bidHis)
-                        .addComponent(startBid)
-                        .addComponent(highBid)
-                        .addComponent(bidTextField))
-                .addGroup(layout.createParallelGroup()
-                        .addComponent(placeBidBtn)));
-        hGroup.addComponent(optOutBtn);
+        GroupLayout contentPanelLayout = new GroupLayout(contentPanel);
+        contentPanel.setLayout(contentPanelLayout);
+        contentPanelLayout.setHorizontalGroup(
+                contentPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGroup(contentPanelLayout.createSequentialGroup()
+                                .addGroup(contentPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                        .addGroup(contentPanelLayout.createSequentialGroup()
+                                                .addGap(45, 45, 45)
+                                                .addComponent(jLabel3))
+                                        .addGroup(contentPanelLayout.createSequentialGroup()
+                                                .addGap(40, 40, 40)
+                                                .addGroup(contentPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                                        .addComponent(desTextField, GroupLayout.PREFERRED_SIZE, 393, GroupLayout.PREFERRED_SIZE)
+                                                        .addGroup(contentPanelLayout.createSequentialGroup()
+                                                                .addComponent(itemNameLabel, GroupLayout.PREFERRED_SIZE, 250, GroupLayout.PREFERRED_SIZE)
+                                                                .addGap(50, 50, 50)
+                                                                .addComponent(ratingPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))))
+                                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(GroupLayout.Alignment.TRAILING, contentPanelLayout.createSequentialGroup()
+                                .addGap(30, 30, 30)
+                                .addGroup(contentPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addComponent(startTimeLabel)
+                                        .addComponent(startBidLabel))
+                                .addGap(25, 25, 25)
+                                .addGroup(contentPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addComponent(startValue)
+                                        .addComponent(startBidValue))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(contentPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addGroup(GroupLayout.Alignment.TRAILING, contentPanelLayout.createSequentialGroup()
+                                                .addComponent(endTimeLabel)
+                                                .addGap(5, 5, 5))
+                                        .addGroup(GroupLayout.Alignment.TRAILING, contentPanelLayout.createSequentialGroup()
+                                                .addComponent(highBidLabel)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)))
+                                .addGroup(contentPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addComponent(endValue)
+                                        .addComponent(highBidValue))
+                                .addGap(25, 25, 25))
+                        .addGroup(GroupLayout.Alignment.TRAILING, contentPanelLayout.createSequentialGroup()
+                                .addContainerGap(0, Short.MAX_VALUE)
+                                .addGroup(contentPanelLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                                        .addComponent(jPanel1, GroupLayout.PREFERRED_SIZE, 420, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jSeparator1, GroupLayout.PREFERRED_SIZE, 437, GroupLayout.PREFERRED_SIZE))
+                                .addGap(25, 25, 25))
+        );
+        contentPanelLayout.setVerticalGroup(
+                contentPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGroup(contentPanelLayout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addGroup(contentPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addComponent(itemNameLabel, GroupLayout.PREFERRED_SIZE, 44, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(ratingPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .addGap(30, 30, 30)
+                                .addComponent(desTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addGap(30, 30, 30)
+                                .addComponent(jSeparator1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel3)
+                                .addGap(18, 18, 18)
+                                .addGroup(contentPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(startTimeLabel)
+                                        .addComponent(startValue)
+                                        .addComponent(endTimeLabel)
+                                        .addComponent(endValue))
+                                .addGap(33, 33, 33)
+                                .addGroup(contentPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(startBidLabel)
+                                        .addComponent(startBidValue)
+                                        .addGroup(contentPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                                .addComponent(highBidLabel)
+                                                .addComponent(highBidValue)))
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 70, Short.MAX_VALUE)
+                                .addComponent(jPanel1, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
+                                .addGap(24, 24, 24))
+        );
 
-        layout.setHorizontalGroup(hGroup);
 
-        // Vertical
-        GroupLayout.SequentialGroup vGroup = layout.createSequentialGroup();
+        refreshButton.setText("REFRESH");
+        refreshButton.setMaximumSize(new Dimension(20, 20));
+        refreshButton.setPreferredSize(new Dimension(20, 20));
+        refreshButton.setBackground(new Color(58, 69, 132));
+        refreshButton.setForeground(Color.WHITE);
+        refreshButton.setFont(new Font("", Font.BOLD, 14));
+        refreshButton.setOpaque(true);
+        refreshButton.setBorderPainted(false);
+        refreshButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
-        vGroup.addGroup(layout.createParallelGroup()
-                .addComponent(endTimeLabel)
-                .addComponent(endTime));
-        vGroup.addGroup(layout.createParallelGroup()
-                .addComponent(bidHisLabel)
-                .addComponent(bidHis));
-        vGroup.addGroup(layout.createParallelGroup()
-                .addComponent(startBidLabel)
-                .addComponent(startBid));
-        vGroup.addGroup(layout.createParallelGroup()
-                .addComponent(highBidLabel)
-                .addComponent(highBid));
-        vGroup.addGroup(layout.createParallelGroup()
-                .addComponent(maxBidLabel)
-                .addComponent(bidTextField)
-                .addComponent(placeBidBtn));
-        vGroup.addGroup(layout.createParallelGroup()
-                .addComponent(optOutBtn));
+                highBidTable.repaint();
+            }
+        });
 
-
-        layout.setVerticalGroup(vGroup);
-
-
-        return panel;
     }
 
-    private String parseTime(String date){
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-dd-MM HH:mm:ss");
-        try {
-            Date date1 = format.parse(date.replace("T"," "));
-            String d= new SimpleDateFormat("yyyy/dd/MM HH:mm:ss").format(date1);
-            return d;
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return "";
-    }
-
-    private void updateUserMaxBid(int userBidNum, int bidHis) {
+    private void updateUserMaxBid(int userBidNum) {
         ItemDao itemDao = new ItemDao();
         Item item = new Item();
         item.setHighestBid(userBidNum);
-        item.setBidHistory(bidHis);
         item.setItemId(detailItem.getItemId());
 
+        currentUserBid = userBidNum;
+
         itemDao.updateItemDetails(item);
+        String message = "Sending your bid";
+        dialog = new AnimatedPDialog.ProgressDialog(contentPanel, message, "/images/bidham.gif");
+        dialog.setVisible(true);
     }
 
-    private void optOutBtnBid() {
-        ItemDao itemDao = new ItemDao();
-        Item item = new Item();
-        item.setHighestBid(0);
-        item.setBidHistory(0);
-        item.setItemId(detailItem.getItemId());
-        itemDao.updateItemDetails(item);
+    private void insertUserMaxBid(int userMaxBid) {
 
-        // Refresh View
-        highBidLabel.setText("0");
+        //Read object and get User id from file
+        SerializeIO serializeIO = new SerializeIO();
+        User user = (User) serializeIO.ReadObjectFromFile(filepath);
+        String userId = String.valueOf(user.getId());
+
+
+        Item item = new Item();
+        item.setItemId(detailItem.getItemId());
+        item.setHighestBid(userMaxBid);
+
+
+        ItemDao itemDao = new ItemDao();
+        //itemDao.insertMaxBid(userId, item);
+        itemDao.insertOrUpdateMaxBid(userId, item);
+
+        System.out.println("User ID: " + userId);
+        System.out.println("Item ID: " + detailItem.getItemId());
+
 
     }
 
@@ -359,16 +628,117 @@ public  class DetailPanel extends JPanel{
             item = itemDao.getItemDetails(itemID);
             System.out.println("Description: " + item.getDescription());
             System.out.println("Name: " + item.getItemName());
+            itemEndTime = item.getEndTime();
+
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
         detailItem = item;
     }
 
-    static class myTask extends TimerTask{
+    private LevelBar displayRating() {
+        // Create rating Bar
+        ImageIcon defaultIcon = new ImageIcon(getClass().getResource("/images/31g.png"));
+        ImageProducer ip = defaultIcon.getImage().getSource();
+        List<ImageIcon> list;
+        StarImageIcon starImageIcon = new StarImageIcon();
+        ImageIcon star = starImageIcon.makeStarImageIcon(ip, 1f, 1f, 0f);
+        //star.getImage().getScaledInstance(80,80, Image.SCALE_SMOOTH);
+        list = Arrays.asList(star, star, star, star, star);
+        LevelBar levelBar = new LevelBar(defaultIcon, list, 1);
+        levelBar.setBackground(new Color(243, 244, 246, 255));
+        levelBar.setLevel(2);
 
-        @Override
-        public void run() {
+
+        return levelBar;
+    }
+
+    private String parseTime(String timestamp) {
+
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        try {
+            date = sdf.parse(timestamp);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
+        return timestamp;
+    }
+
+    private void maxBidFieldActionPerformed(ActionEvent evt) {
+        // TODO add your handling code here:
+    }
+
+    private void bidButtonAction(ActionEvent evt) {
+        new BidWorker().execute();
+    }
+
+    private void insertUpdateBid() {
+        String userBid = maxBidField.getText().trim();
+
+
+        // Cast user input to an integer
+        int userBidNum = Integer.parseInt(userBid);
+        if (userBidNum > detailItem.getStartBid() && userBidNum > detailItem.getHighestBid()) {
+
+            // Update data on Database
+            updateUserMaxBid(userBidNum);
+
+            // Insert user max bid on Bid Table
+            insertUserMaxBid(userBidNum);
+
+            // set Highest Bid
+            highBidValue.setText("\u00A2" + userBidNum);
+
+
+            // Log Values
+            Logy.d("UserBid No: " + userBidNum);
+            Logy.d("Item ID : " + detailItem.getItemId());
+
+        } else {
+            Logy.d("User Bid is Low");
+            Alert.showError(contentPanel, "Bid is lower. Enter an higher amount");
+            dialog.setVisible(false);
+            dialog.dispose();
         }
     }
+
+    private void showMaxBidsTable() {
+        // Update Table
+        tableModel = new BidTable(detailItem.getItemId());
+        highBidTable.setModel(tableModel);
+        highBidTable.repaint();
+    }
+
+    private class BidWorker extends SwingWorker<Integer, Integer> {
+
+        protected Integer doInBackground() throws Exception {
+            insertUpdateBid();
+
+            // Do a time-consuming task.
+            Thread.sleep(1000);
+            return 42;
+        }
+
+        protected void done() {
+            try {
+
+                showMaxBidsTable();
+                //JOptionPane.showMessageDialog(f, get());
+                // Show Success Flags
+                Alert.showInformation(contentPanel, "Bid Placed Successfully");
+                dialog.setVisible(false);
+                dialog.dispose();
+
+                // Clear text view
+                maxBidField.setText("");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
 }
