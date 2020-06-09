@@ -2,6 +2,7 @@ package ui;
 
 
 import dao.UserDao;
+import database.SerializeIO;
 import entity.User;
 import validation.user.UserValidation;
 
@@ -14,11 +15,15 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
 
 /** Primary GUI window for the client application. */
 public final class LoginFrame extends JFrame{
-    
+
+    private final UserValidation userValidation;
+    private static final String filepath="/Users/kennyung6/Desktop/tamfile.txt";
 
     JLabel titleLabel;
     JLabel emailLabel;
@@ -30,9 +35,6 @@ public final class LoginFrame extends JFrame{
     JPanel loginPanel;
     JPanel loginDataPanel;
     JLabel registerText;
-
-    private final UserValidation userValidation;
-
 
 
     public LoginFrame() {
@@ -55,8 +57,7 @@ public final class LoginFrame extends JFrame{
         basePanel.setBackground(Color.white);
         GroupLayout layout = new GroupLayout(basePanel);
         basePanel.setLayout(layout);
-       /* layout.setAutoCreateGaps(true);
-        layout.setAutoCreateContainerGaps(true);*/
+
 
         layout.setHorizontalGroup(layout.createParallelGroup(Alignment.CENTER).
                 addGroup(layout.createSequentialGroup().
@@ -81,26 +82,21 @@ public final class LoginFrame extends JFrame{
         loginBtn = new JButton();
         registerText = new JLabel();
 
-
         // Add Bottom Border And Margin to TextFields
         Border bottomLine = BorderFactory.createMatteBorder(0, 0, 2, 0,
                 new Color(10, 11, 38));
         Border empty = new EmptyBorder(0, 10, 0, 0);
         CompoundBorder border = new CompoundBorder(bottomLine, empty);
 
-
-
         // Login Title
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 34));
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setText("Log In");
 
-
         // Email Label
         emailLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         emailLabel.setForeground(Color.WHITE);
         emailLabel.setText("Email");
-
 
         // Email TextField
         emailTextField.setPreferredSize(new Dimension(35,40));
@@ -108,12 +104,10 @@ public final class LoginFrame extends JFrame{
         emailTextField.setForeground(new Color(11,17,58));
         emailTextField.setBorder(border);
 
-
         // Password Label
         pwdLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         pwdLabel.setForeground(Color.WHITE);
         pwdLabel.setText("Password");
-
 
         // Password TextField
         pwdField.setPreferredSize(new Dimension(35,40));
@@ -121,8 +115,6 @@ public final class LoginFrame extends JFrame{
         pwdField.setForeground(new Color(11,17,58));
         pwdField.setText("");
         pwdField.setBorder(border);
-
-
 
         // Login Button
         loginBtn.setBackground(new Color(0, 204, 204));
@@ -194,7 +186,6 @@ public final class LoginFrame extends JFrame{
             loginPanel.setBackground(new Color(51, 65,130));
 
         }
-
         return loginPanel;
     }
 
@@ -232,7 +223,6 @@ public final class LoginFrame extends JFrame{
         String userName = emailTextField.getText().trim();
         String pass = String.valueOf(pwdField.getPassword()).trim();
 
-
                 User user = new User();
                 user.setUsername(userName);
                 user.setPassword(pass);
@@ -244,6 +234,11 @@ public final class LoginFrame extends JFrame{
                 for (User userNew : users) {
                     if (userNew.getUsername().equals(user.getUsername())) {
                         if (userNew.getPassword().equals(user.getPassword())) {
+
+                            // Save to file and reuse later
+                            new SerializeIO().WriteObjectToFile(userNew, filepath);
+
+
                             Dashboard dashboard = new Dashboard();
                             dashboard.setVisible(true);
                             dispose();
@@ -252,13 +247,7 @@ public final class LoginFrame extends JFrame{
                         }
                     }
                 }
-
                 if (!exists)
                     JOptionPane.showMessageDialog(null, "Username or Password is incorrect");
-
-
         }
-
-
-
 }

@@ -6,80 +6,101 @@
 package ui;
 
 
-import com.sun.xml.internal.bind.v2.TODO;
 import dao.ItemDao;
 import entity.Item;
+import helpers.DropShadowPanel;
 import helpers.HoverButton;
 import util.ComponentUtils;
-import util.DateTimeUtils;
 import util.Logy;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.*;
+import java.time.*;
 import java.util.List;
-import java.util.Timer;
 
 
 public final class ItemPanel extends JPanel {
-
+    DropShadowPanel topPanel;
+    int expiredItem;
     private JPanel centerPanel;
-    private JPanel gridView;
-    private String itemStartTime;
-    private String itemEndTime;
-    private long currentDateTime;
-    private long itemTimeout;
-    private int hour;
-    private int minute;
-    private int second;
-    long interval;
-
+    private DynamicGridLayout gridLayout;
+    private JPanel gridPanel;
 
     public ItemPanel() {
         initComponents();
         getItems();
-       // countDownTimer();
-        //initCountDown();
+
         Logy.d("Item panel initialized");
     }
-
 
     private void initComponents() {
 
         // Center Panel
         centerPanel = new JPanel();
         centerPanel.setBackground(Color.WHITE);
+        centerPanel.setLayout(new BorderLayout());
         setBackground(Color.WHITE);
 
-        gridView = new JPanel(new GridLayout(5, 5, 10, 20));
-        gridView.setPreferredSize(new Dimension(690, 820));
-        gridView.setBackground(Color.WHITE);
 
-        // Add Grid to the Center Panel
-        centerPanel.add(gridView);
+        gridLayout = new DynamicGridLayout();
+        gridPanel = new JPanel(new GridLayout(5, 5, 10, 20));
+        gridPanel.setBackground(Color.white);
+
+        gridLayout.getUI().add(gridPanel);
+
+
+        // Image View
+        String path = "/images/topimg.png";
+        ImageIcon icon = new ImageIcon(Dashboard.class.getResource(path));
+        Image image = icon.getImage(); // transform it
+        Image newImg = image.getScaledInstance(820, 145, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+        icon = new ImageIcon(newImg);  // transform it back
+        JLabel imgLabel = new JLabel(icon);
+
+
+        // Top Panel
+        topPanel = new DropShadowPanel(4);
+        topPanel.setBackground(Color.PINK);
+
+        // Add Image to Top Panel
+        topPanel.add(imgLabel);
+
+        // Extra Layout Settings
+        centerPanel.add(topPanel, BorderLayout.PAGE_START);
+        //  insert Empty border to provide top space
+        gridPanel.setBorder(new EmptyBorder(40, 40, 0, 40));
+        centerPanel.add(gridPanel, BorderLayout.CENTER);
 
         // Add center panel to Base Panel
         add(centerPanel);
 
     }
 
-
     private void getItems() {
         ItemDao itemDao = new ItemDao();
         List<Item> items;
+
         try {
             items = itemDao.getItems();
+            int limit = 0;
             for (Item item : items) {
-                gridView.add(getGridItem(item));
-                itemStartTime = item.getStartTime();
-                itemEndTime = item.getEndTime();
+
+                if (shouldAddItem(item)) {
+
+                    if (limit <= 15) {
+                        // do something
+                        gridPanel.add(getGridItem(item));
+                    } else {
+                        // do something else
+                    }
+                    limit++;
+
+                }
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -87,50 +108,30 @@ public final class ItemPanel extends JPanel {
 
     }
 
-    private void initCountDown() {
+    private boolean shouldAddItem(Item item) {
 
-        long specific;
+        // Current Time
+        long now = Instant.now().toEpochMilli();
+        long endTime = dateToEpoch(item.getEndTime());
 
-        DateTimeUtils obj = new DateTimeUtils();
-        SimpleDateFormat simpleDateFormat =
-                new SimpleDateFormat("yyyy-M-dd HH:mm:ss");
 
+        if (endTime <= now) {
+            expiredItem = item.getItemId();
+            Logy.d("Expired Item: " + expiredItem);
+        }
+
+        return endTime > now;
+    }
+
+    private Long dateToEpoch(String timestamp) {
+        Long millis = null;
         try {
-
-            Date date1 = simpleDateFormat.parse(itemStartTime);
-            Date date2 = simpleDateFormat.parse(itemEndTime);
-
-            interval = obj.printDifference(date1, date2);
-            specific = obj.printSpecific(interval);
-
-            System.out.println(interval);
-            System.out.println(specific);
-
+            millis = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(timestamp).getTime();
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
-
-        Timer timer = new Timer();
-        timer.schedule(new myTask() {
-            @Override
-            public void run() {
-                    interval--;
-                    hour = (int) (interval / 3600);
-                    minute = (int) ((interval - 3600 * hour) / 60);
-                    second = (int) (interval - 3600 * hour - 60 * minute);
-
-                    System.out.println("Interval:" + interval);
-                    System.out.println("Hour: " + hour);
-                    System.out.println("Minute: " + minute);
-                    System.out.println("Second: " + second);
-
-
-
-            }
-        }, 0, 1000);
+        return millis;
     }
-
 
     private JComponent getGridItem(Item item) {
 
@@ -139,11 +140,12 @@ public final class ItemPanel extends JPanel {
         // Base Panel for Grid buttons
         btnImg.setLayout(new BorderLayout());
 
+        JPanel gridItemPanel = new JPanel(new BorderLayout());
 
         // Image View
         ImageIcon icon = new ImageIcon(item.getImage());
         Image image = icon.getImage(); // transform it
-        Image newImg = image.getScaledInstance(140, 110, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+        Image newImg = image.getScaledInstance(160, 120, Image.SCALE_SMOOTH); // scale it the smooth way
         icon = new ImageIcon(newImg);  // transform it back
         JLabel imgLabel = new JLabel(icon);
 
@@ -151,19 +153,21 @@ public final class ItemPanel extends JPanel {
         // Inner Text Label
         JLabel itemTxt = new JLabel();
         itemTxt.setHorizontalAlignment(SwingConstants.CENTER);
-        itemTxt.setPreferredSize(new Dimension(10, 20));
         itemTxt.setOpaque(true);
+        itemTxt.setFont(new Font("", Font.PLAIN, 14));
         itemTxt.setBackground(new Color(215, 219, 226));
         itemTxt.setText(item.getItemName());
 
+        gridItemPanel.add(imgLabel, BorderLayout.CENTER);
+        gridItemPanel.add(itemTxt, BorderLayout.SOUTH);
 
         // Add child components to Grid Buttons
-        btnImg.add(imgLabel, BorderLayout.CENTER);
-        btnImg.add(itemTxt, BorderLayout.SOUTH);
+        btnImg.add(gridItemPanel);
 
 
         // Add Panel to the center panel in Dashboard
         btnImg.addActionListener(e -> {
+            // DetailPanel detailPanel = new DetailPanel(item.getItemId());
             DetailPanel detailPanel = new DetailPanel(item.getItemId());
             ComponentUtils.addToPanel(centerPanel, detailPanel);
         });
@@ -173,72 +177,4 @@ public final class ItemPanel extends JPanel {
 
     }
 
-    public void countDownTimer() {
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        Date dt = null;
-        try {
-            dt = sdf.parse(itemEndTime);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        assert dt != null;
-        long epochDateTime = dt.getTime();
-
-        System.out.println("Mysql DateTime: " + dt);
-
-        // current date in UTC, no matter what the JVM default timezone is
-        LocalDateTime dtNowUtc = LocalDateTime.now(ZoneOffset.UTC);
-        System.out.println("Current DateTime: " + dtNowUtc);
-
-        // set time to midnight and get the epochMilli
-        currentDateTime = dtNowUtc.atZone(ZoneOffset.UTC).toInstant().toEpochMilli();
-        System.out.println("Current date Time(Mill): " + dtNowUtc.atZone(ZoneOffset.UTC).toInstant().toEpochMilli());
-
-        itemTimeout = epochDateTime - currentDateTime;
-        System.out.println("Item Timeout: " + itemTimeout);
-
-
-        Timer timer = new Timer();
-        timer.schedule(new myTask(){
-            @Override
-            public void run(){
-                if(itemTimeout > 0){
-                    itemTimeout--;
-                    hour = (int) (itemTimeout/3600);
-                    minute = (int) ((itemTimeout - 3600*hour)/60);
-                    second = (int) (itemTimeout - 3600*hour - 60*minute);
-
-                    System.out.println("Hour: " + hour);
-                    System.out.println("Minute: " + minute);
-                    System.out.println("Second: " + second);
-
-
-                    epochToDate(itemTimeout);
-
-                }
-
-            }
-        }, 0, 1000);
-    }
-
-    private void epochToDate(long time) {
-        Date date = new Date(time);
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        format.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
-        String formattedDate = format.format(date);
-
-        System.out.println("Date From Epoch: " + formattedDate);
-
-    }
-
-
-
-    private class myTask extends TimerTask {
-
-        @Override
-        public void run() {
-        }
-    }
 }

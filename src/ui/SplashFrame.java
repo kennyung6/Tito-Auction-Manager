@@ -17,7 +17,6 @@ public class SplashFrame extends JFrame{
     private static final int WINDOW_WIDTH = 300;
     private static final int WINDOW_HEIGHT = 250;
 
-
     public void createAndDisplayGUI()
     {
         setTitle("Welcome");

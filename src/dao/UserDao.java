@@ -11,165 +11,95 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
+    private ConnectionFactory factory;
+    private Connection connection;
 
-	private ConnectionFactory factory;
-	private Connection connection;
+    public UserDao() {
+        factory = new ConnectionFactory();
+    }
 
-	public UserDao() {
-		factory = new ConnectionFactory();
-	}
+    public void insert(User user) {
+        String sql = "INSERT INTO tbl_user " + "(u_username, u_password, u_telephone, u_address)" + " VALUES (?,?,?,?)";
 
-	public void insert(User user) {
-		String sql = "INSERT INTO tbl_user " + "(u_username, u_password, u_telephone, u_address)" + " VALUES (?,?,?,?)";
+        try {
+            connection = ConnectionFactory.getConnection();
 
-		try {
-			connection = ConnectionFactory.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql);
 
-			PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, user.getPassword());
+            stmt.setString(3, user.getTel());
+            stmt.setString(4, user.getAddress());
 
-			stmt.setString(1, user.getUsername());
-			stmt.setString(2, user.getPassword());
-			stmt.setString(3, user.getTel());
-			stmt.setString(4, user.getAddress());
+            stmt.execute();
+            stmt.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
+        }
+    }
 
-			stmt.execute();
-			stmt.close();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				connection.close();
-			} catch (SQLException e2) {
-				throw new RuntimeException(e2);
-			}
-		}
-	}
+    public User getUser(String user) {
+        String sql = "SELECT * FROM tbl_user WHERE u_username = ?";
 
-	public void update(User User) {
-		String sql = "UPDATE tbl_user SET u_username=?, u_password=? WHERE u_id=?";
-		try {
-			connection = ConnectionFactory.getConnection();
-			PreparedStatement stmt = connection.prepareStatement(sql);
-			stmt.setString(1, User.getUsername());
-			stmt.setString(2, User.getPassword());
-			stmt.setLong(3, User.getId());
-			stmt.execute();
-			stmt.close();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				connection.close();
-			} catch (SQLException e2) {
-				throw new RuntimeException(e2);
-			}
-		}
-	}
+        try {
+            connection = ConnectionFactory.getConnection();
+            PreparedStatement stmt = this.connection.prepareStatement(sql);
 
-	public void delete(User User) {
-		try {
-			connection = ConnectionFactory.getConnection();
-			PreparedStatement stmt = connection
-					.prepareStatement("DELETE FROM tbl_user WHERE u_id=?");
-			stmt.setLong(1, User.getId());
-			stmt.execute();
-			stmt.close();
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				connection.close();
-			} catch (SQLException e2) {
-				throw new RuntimeException(e2);
-			}
-		}
-	}
+            stmt.setString(1, user);
+            ResultSet rs = stmt.executeQuery();
+            User User = new User();
+            while (rs.next()) {
+                User.setUsername(rs.getString("u_username"));
+                User.setPassword(rs.getString("u_password"));
+            }
+            stmt.close();
+            rs.close();
+            return User;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
+        }
+    }
 
-	public User getUser(int id) {
-		String sql = "SELECT * FROM tbl_user WHERE u_id = ?";
+    public List<User> getUserList() {
 
-		try {
-			connection = ConnectionFactory.getConnection();
-			PreparedStatement stmt = this.connection.prepareStatement(sql);
+        try {
+            connection = ConnectionFactory.getConnection();
+            List<User> Users = new ArrayList<>();
+            PreparedStatement stmt = this.connection.prepareStatement("SELECT * FROM tbl_user");
+            ResultSet rs = stmt.executeQuery();
 
-			stmt.setInt(1, id);
-			ResultSet rs = stmt.executeQuery();
-			User User = new User();
-			while (rs.next()) {
-				User.setUsername(rs.getString("u_username"));
-				User.setPassword(rs.getString("u_password"));
-			}
-			stmt.close();
-			rs.close();
-			return User;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				connection.close();
-			} catch (SQLException e2) {
-				throw new RuntimeException(e2);
-			}
-		}
-	}
+            while (rs.next()) {
+                User User = new User();
+                User.setId(rs.getInt("u_id"));
+                User.setUsername(rs.getString("u_username"));
+                User.setPassword(rs.getString("u_password"));
 
-	public User getUser(String user) {
-		String sql = "SELECT * FROM tbl_user WHERE u_username = ?";
+                Users.add(User);
+            }
+            rs.close();
+            stmt.close();
+            return Users;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e2) {
+                throw new RuntimeException(e2);
+            }
+        }
 
-		try {
-			connection = ConnectionFactory.getConnection();
-			PreparedStatement stmt = this.connection.prepareStatement(sql);
-
-			stmt.setString(1, user);
-			ResultSet rs = stmt.executeQuery();
-			User User = new User();
-			while (rs.next()) {
-				User.setUsername(rs.getString("u_username"));
-				User.setPassword(rs.getString("u_password"));
-			}
-			stmt.close();
-			rs.close();
-			return User;
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				connection.close();
-			} catch (SQLException e2) {
-				throw new RuntimeException(e2);
-			}
-		}
-	}
-	
-	public List<User> getUserList() {
-
-		try {
-			connection = ConnectionFactory.getConnection();
-			List<User> Users = new ArrayList<>();
-			PreparedStatement stmt = this.connection.prepareStatement("SELECT * FROM tbl_user");
-			ResultSet rs = stmt.executeQuery();
-
-			while (rs.next()) {
-				User User = new User();
-				User.setId(rs.getInt("u_id"));
-				User.setUsername(rs.getString("u_username"));
-				User.setPassword(rs.getString("u_password"));
-				
-				Users.add(User);
-			}
-			rs.close();
-			stmt.close();
-			return Users;
-		} catch (SQLException e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				connection.close();
-			} catch (SQLException e2) {
-				throw new RuntimeException(e2);
-			}
-		}
-
-	}
-
+    }
 }

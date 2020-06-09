@@ -29,14 +29,10 @@ public class SignupFrame extends JFrame implements ActionListener {
     JPanel loginDataPanel;
 
 
-
     public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                SignupFrame irc = new SignupFrame();
-                irc.setVisible(true);
-            }
+        EventQueue.invokeLater(() -> {
+            SignupFrame irc = new SignupFrame();
+            irc.setVisible(true);
         });
 
     }
@@ -60,8 +56,7 @@ public class SignupFrame extends JFrame implements ActionListener {
         basePanel.setBackground(Color.white);
         GroupLayout layout = new GroupLayout(basePanel);
         basePanel.setLayout(layout);
-       /* layout.setAutoCreateGaps(true);
-        layout.setAutoCreateContainerGaps(true);*/
+
 
         layout.setHorizontalGroup(layout.createParallelGroup(Alignment.CENTER).
                 addGroup(layout.createSequentialGroup().

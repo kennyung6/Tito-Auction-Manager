@@ -3,6 +3,14 @@ package entity;
 public class Item {
 
 
+    public void setItemStatus(int itemStatus) {
+        this.itemStatus = itemStatus;
+    }
+
+    private int itemStatus;
+
+    // Item Bean
+
     private int itemId;
     private String itemName;
 
@@ -14,9 +22,7 @@ public class Item {
     private int highestBid;
     private int bidHistory;
     private byte[] image;
-    
 
-    
     public Item() {
 
     }
@@ -77,13 +83,6 @@ public class Item {
         this.startBid = startBid;
     }
 
-    public int getBidHistory() {
-        return bidHistory;
-    }
-
-    public void setBidHistory(int bidHistory) {
-        this.bidHistory = bidHistory;
-    }
 
     public byte[] getImage() {
         return image;
@@ -92,8 +91,6 @@ public class Item {
     public void setImage(byte[] image) {
         this.image = image;
     }
-
-    // String
 
 
 }

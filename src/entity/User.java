@@ -6,11 +6,16 @@
 package entity;
 
 
+import java.io.Serializable;
+
 /**
  *
  * @author Suzn
  */
-public class User {
+public class User implements Serializable {
+
+    //default serialVersion id
+    private static final long serialVersionUID = 1L;
 
     private int id;
     private String name;
@@ -26,8 +31,9 @@ public class User {
 
     }
 
-    public User(int id) {
+    public User(int id, String name) {
         this.id = id;
+        this.name = name;
     }
 
     /**
@@ -102,5 +108,11 @@ public class User {
         this.tel = tel;
     }
 
+
+    @Override
+    public String toString() {
+        return new StringBuffer(" User Id: ").append(this.id)
+                .append(" User Name : ").append(this.name).append(" Age : ").toString();
+    }
 
 }

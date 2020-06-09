@@ -1,6 +1,12 @@
 package util;
 
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class DateTimeUtils {
@@ -8,16 +14,25 @@ public class DateTimeUtils {
     //1 minute = 60 seconds
     //1 hour = 60 x 60 = 3600
     //1 day = 3600 x 24 = 86400
-    public long printDifference(Date startDate, Date endDate){
+    public long printDifference(String startDateTime, String endDateTime){
 
-        //milliseconds
-        long different = endDate.getTime() - startDate.getTime();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        System.out.println("startDate : " + startDate);
-        System.out.println("endDate : "+ endDate);
-        System.out.println("different : " + different);
+        LocalDateTime dateTime1= LocalDateTime.parse(endDateTime, formatter);
+        LocalDateTime dateTime2= LocalDateTime.parse(startDateTime, formatter);
 
-        return different;
+        long diffInMilli = java.time.Duration.between(dateTime1, dateTime2).toMillis();
+        long diffInSeconds = java.time.Duration.between(dateTime1, dateTime2).getSeconds();
+        long diffInMinutes = java.time.Duration.between(dateTime1, dateTime2).toMinutes();
+
+
+       // System.out.println("startDate : " + startDateTime);
+        System.out.println("endDate : "+ endDateTime);
+        System.out.println("different in Seconds : " + diffInSeconds);
+       /* System.out.println("different in Milli : " + diffInMilli);
+        System.out.println("different in Minutes : " + diffInMinutes);*/
+
+        return diffInSeconds;
 
     }
 
@@ -45,6 +60,24 @@ public class DateTimeUtils {
 
 
         return different;
+    }
+
+    public String getTime(String timestamp){
+
+
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-M-dd HH:mm:ss");
+        Date currentdate= null;
+        String time = null;
+        try {
+            currentdate = sdf.parse(timestamp);
+            SimpleDateFormat sdf2=new SimpleDateFormat("hh:mm:ss a");
+             time = sdf2.format(currentdate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
+        return time;
     }
 
 }

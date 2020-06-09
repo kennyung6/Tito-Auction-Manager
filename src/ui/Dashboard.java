@@ -1,5 +1,8 @@
 package ui;
 
+import database.SerializeIO;
+import entity.Item;
+import entity.User;
 import helpers.DropShadowPanel;
 import util.ComponentUtils;
 import util.Logy;
@@ -19,19 +22,15 @@ import static javax.swing.BorderFactory.createMatteBorder;
  * Primary GUI window for the client application.
  */
 public class Dashboard extends JFrame {
-    
+
     JPanel rootPanel;
     JPanel sidePanel;
     JPanel contentPanel;
-    DropShadowPanel topPanel;
-    JPanel centerPanel;
     JScrollPane scroll;
     JPanel gridView;
     JPanel itemDetailPanel;
     JLabel backLabel;
 
-    private HomePanel homePanel;
-    private ItemPanel auctionPanel;
     private JButton homeMenuButton;
     private JButton auctionMenuButton;
     private JButton logoutButton;
@@ -42,20 +41,21 @@ public class Dashboard extends JFrame {
 
         initLayout();
         initFrame();
-        ComponentUtils.addToPanel(this.centerPanel, getHomePanel());
+        ComponentUtils.addToPanel(this.contentPanel, getHomePanel());
         Logy.d("Dashboard panel initialized");
+
     }
 
     public static void main(String[] args) {
 
         SwingUtilities.invokeLater(() -> {
-             new Dashboard().setVisible(true);
+            new Dashboard().setVisible(true);
         });
 
     }
 
     private void initFrame() {
-        setSize(1080, 720);
+        setSize(1210, 730);
         // this method display the JFrame to center position of a screen
         setLocationRelativeTo(null);
         setResizable(false);
@@ -125,10 +125,8 @@ public class Dashboard extends JFrame {
 
             // Back Button
             backLabel = new JLabel(btnIcon);
-            backLabel.addMouseListener(new MouseAdapter()
-            {
-                public void mouseClicked(MouseEvent e)
-                {
+            backLabel.addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e) {
                     // you can open a new frame here as
                     // i have assumed you have declared "frame" as instance variable
                     if (itemDetailPanel != null && itemDetailPanel.isVisible()) {
@@ -158,26 +156,25 @@ public class Dashboard extends JFrame {
 
             // show watermark
 
-            JPanel sideButtonPanel = new JPanel(new GridLayout(3,1));
-            sideButtonPanel.setBorder(createEmptyBorder(50,0,0,0));
+            JPanel sideButtonPanel = new JPanel(new GridLayout(3, 1));
+            sideButtonPanel.setBorder(createEmptyBorder(50, 0, 0, 0));
             sideButtonPanel.setBackground(new Color(51, 65, 130));
-
 
 
             homeMenuButton = new JButton();
             homeMenuButton.setBorder(BorderFactory.createLoweredBevelBorder());
             homeMenuButton.setBackground(new Color(42, 54, 111, 255));
-            homeMenuButton.setFont(new Font("Tahoma", Font.BOLD, 14)); 
+            homeMenuButton.setFont(new Font("Tahoma", Font.BOLD, 14));
             homeMenuButton.setForeground(new Color(255, 255, 255));
-            homeMenuButton.setIcon(new ImageIcon(getClass().getResource("/images/home.png"))); 
+            homeMenuButton.setIcon(new ImageIcon(getClass().getResource("/images/home.png")));
             homeMenuButton.setText("Home");
             homeMenuButton.setContentAreaFilled(false);
             homeMenuButton.setHorizontalAlignment(SwingConstants.CENTER);
             homeMenuButton.setVerticalAlignment(SwingConstants.CENTER);
             homeMenuButton.setIconTextGap(10);
             homeMenuButton.setOpaque(true);
-            homeMenuButton.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/images/home.png"))); 
-            homeMenuButton.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/images/home1x.png"))); 
+            homeMenuButton.setPressedIcon(new javax.swing.ImageIcon(getClass().getResource("/images/home.png")));
+            homeMenuButton.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/images/home1x.png")));
             homeMenuButton.addActionListener(evt -> {
                 homeMenuButton.setBackground(new Color(42, 54, 111, 255));
                 homeMenuButton.setBorder(BorderFactory.createLoweredBevelBorder());
@@ -188,40 +185,37 @@ public class Dashboard extends JFrame {
             });
 
 
-
-
-           auctionMenuButton = new JButton();
-           auctionMenuButton.setBackground(new Color(51, 65, 130));
-           auctionMenuButton.setFont(new java.awt.Font("Tahoma", Font.BOLD, 14));
-           auctionMenuButton.setForeground(new java.awt.Color(255, 255, 255));
-           auctionMenuButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/auction.png")));
-           auctionMenuButton.setText("Auction");
-           auctionMenuButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 5, 1, 1));
-           auctionMenuButton.setContentAreaFilled(false);
-           auctionMenuButton.setHorizontalAlignment(SwingConstants.CENTER);
-           auctionMenuButton.setIconTextGap(10);
-           auctionMenuButton.setOpaque(true);
-           auctionMenuButton.setPressedIcon(new ImageIcon(getClass().getResource("/images/auction.png")));
-           auctionMenuButton.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/images/auction1x.png")));
-           auctionMenuButton.addActionListener(new java.awt.event.ActionListener() {
+            auctionMenuButton = new JButton();
+            auctionMenuButton.setBackground(new Color(51, 65, 130));
+            auctionMenuButton.setFont(new java.awt.Font("Tahoma", Font.BOLD, 14));
+            auctionMenuButton.setForeground(new java.awt.Color(255, 255, 255));
+            auctionMenuButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/auction.png")));
+            auctionMenuButton.setText("Auction");
+            auctionMenuButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 5, 1, 1));
+            auctionMenuButton.setContentAreaFilled(false);
+            auctionMenuButton.setHorizontalAlignment(SwingConstants.CENTER);
+            auctionMenuButton.setIconTextGap(10);
+            auctionMenuButton.setOpaque(true);
+            auctionMenuButton.setPressedIcon(new ImageIcon(getClass().getResource("/images/auction.png")));
+            auctionMenuButton.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/images/auction1x.png")));
+            auctionMenuButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     auctionMenuButton.setBackground(new Color(42, 54, 111, 255));
                     auctionMenuButton.setBorder(BorderFactory.createLoweredBevelBorder());
                     homeMenuButton.setBackground(new Color(51, 65, 130));
                     homeMenuButton.setBorder(null);
 
-                   auctionMenuButtonActionPerformed(evt);
+                    auctionMenuButtonActionPerformed(evt);
                 }
 
             });
 
 
-
             logoutButton = new JButton();
             logoutButton.setBackground(new Color(51, 65, 130));
-            logoutButton.setFont(new java.awt.Font("Tahoma", Font.BOLD, 14)); 
+            logoutButton.setFont(new java.awt.Font("Tahoma", Font.BOLD, 14));
             logoutButton.setForeground(new java.awt.Color(255, 255, 255));
-            logoutButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/logout.png"))); 
+            logoutButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/logout.png")));
             logoutButton.setText("Logout");
             logoutButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 5, 1, 1));
             logoutButton.setContentAreaFilled(false);
@@ -229,7 +223,7 @@ public class Dashboard extends JFrame {
             logoutButton.setIconTextGap(10);
             logoutButton.setOpaque(true);
             logoutButton.setPressedIcon(new ImageIcon(getClass().getResource("/images/logout.png")));
-            logoutButton.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/images/logout1x.png"))); 
+            logoutButton.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/images/logout1x.png")));
             logoutButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
 
@@ -247,7 +241,7 @@ public class Dashboard extends JFrame {
 
             sidePanel.add(userView, BorderLayout.NORTH);
             sidePanel.add(sideButtonPanel, BorderLayout.CENTER);
-           // sidePanel.add(logoutButton);
+            // sidePanel.add(logoutButton);
 
             // hide on Dashboard
             backLabel.setVisible(false);
@@ -262,7 +256,7 @@ public class Dashboard extends JFrame {
 
             // Split into Two Panels
             contentPanel = new JPanel();
-            contentPanel.setLayout(new BorderLayout());
+            // contentPanel.setLayout(new BorderLayout());
             contentPanel.setBackground(Color.WHITE);
 
             // Make ContentPanel Scrollable
@@ -276,43 +270,6 @@ public class Dashboard extends JFrame {
             scroll.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
             scroll.getViewport().setBorder(null);
 
-            // Top Panel
-            topPanel = new DropShadowPanel(4);
-            topPanel.setBackground(Color.PINK);
-
-            // Center Panel
-            centerPanel = new JPanel();
-            centerPanel.setLayout(new CardLayout());
-            centerPanel.setBackground(Color.WHITE);
-
-            // Inner View for Center Panel
-            gridView = new JPanel(new GridLayout(5, 5, 10, 20));
-            gridView.setPreferredSize(new Dimension(650, 820));
-            gridView.setBackground(Color.WHITE);
-
-
-            // Image View
-            String path = "/images/topimg.png";
-            ImageIcon icon = new ImageIcon(Dashboard.class.getResource(path));
-            Image image = icon.getImage(); // transform it
-            Image newImg = image.getScaledInstance(790, 137, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
-            icon = new ImageIcon(newImg);  // transform it back
-            JLabel imgLabel = new JLabel(icon);
-
-
-            // Add Image to Top Panel
-            topPanel.add(imgLabel);
-
-            // Add Grid to Bottom Container
-            centerPanel.add(gridView);
-
-            // Extra Layout Settings
-            contentPanel.add(topPanel, BorderLayout.PAGE_START);
-            //  insert Empty border to provide top space
-            centerPanel.setBorder(new EmptyBorder(30,0,0,0));
-
-            contentPanel.add(centerPanel, BorderLayout.CENTER);
-
 
         }
 
@@ -320,29 +277,26 @@ public class Dashboard extends JFrame {
     }
 
     private HomePanel getHomePanel() {
-        if (homePanel == null) {
-            Logy.d("Creating home panel instance");
-            homePanel = new HomePanel();
-        }
-        return homePanel;
+        Logy.d("Creating home panel instance");
+        return new HomePanel();
     }
 
     private ItemPanel getItemPanel() {
-        //if (auctionPanel == null) {
-            Logy.d("Creating auction panel instance");
-            return new ItemPanel();
-       // }
+        Logy.d("Creating auction panel instance");
+        return new ItemPanel();
 
     }
 
     private void homeMenuButtonActionPerformed(ActionEvent evt) {
         Logy.d("Home menu clicked");
-        ComponentUtils.addToPanel(this.centerPanel, getHomePanel());
+        ComponentUtils.addToPanel(this.contentPanel, getHomePanel());
+        contentPanel.setBackground(new Color(246, 249, 255));
     }
 
     private void auctionMenuButtonActionPerformed(ActionEvent evt) {
         Logy.d("Auction menu clicked");
-        ComponentUtils.addToPanel(this.centerPanel, getItemPanel());
+        ComponentUtils.addToPanel(this.contentPanel, getItemPanel());
+        contentPanel.setBackground(new Color(255, 255, 255));
     }
 
     private void logoutButtonActionPerformed(ActionEvent evt) {
