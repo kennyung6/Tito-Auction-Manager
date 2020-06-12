@@ -1,0 +1,18 @@
+<component name="libraryTable">
+  <library name="miglayout-core-javadoc">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/miglayout-core.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/miglayout-swing.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/mysql-connector-java-8.0.20.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/protobuf-java-3.6.1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib/miglayout-core-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/miglayout-swing-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/miglayout-core-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/miglayout-swing-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -11,5 +11,7 @@
     <orderEntry type="library" name="KGradientPanel" level="project" />
     <orderEntry type="library" name="MigLayout" level="project" />
     <orderEntry type="library" name="ratingbar" level="project" />
+    <orderEntry type="library" name="miglayout-core-javadoc" level="project" />
+    <orderEntry type="library" name="mysql-connector-java-8.0.20" level="project" />
   </component>
 </module>
